@@ -18,13 +18,14 @@
 		$curlopts[CURLOPT_POST] = true;
 		$curlopts[CURLOPT_POSTFIELDS] = $_POST;
 	}
-	$curlopts[CURLOPT_RETURNTRANSFER] = true;
+	//$curlopts[CURLOPT_RETURNTRANSFER] = true;
 	$curlopts[CURLOPT_HTTPHEADER] = array('Expect:');
-	$curlopts[CURLOPT_HEADER] = true;
+	//$curlopts[CURLOPT_HEADER] = true;
 	curl_setopt_array($ch,$curlopts);
-	$ret = curl_exec($ch);
+	//$ret = curl_exec($ch);
+	curl_exec($ch);
 	$log = date('YmdHis').' '.$_SERVER['REMOTE_ADDR'].' '.$request['url'].' '.$request['method'].' '.$isauth."\n";
 	file_put_contents($logfile,$log,FILE_APPEND);
-	file_put_contents('ret',$ret);
-	echo $ret;
+	//file_put_contents('ret',$ret);
+	//echo $ret;
 ?>
