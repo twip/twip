@@ -20,6 +20,7 @@
 	}
 	$curlopts[CURLOPT_RETURNTRANSFER] = true;
 	$curlopts[CURLOPT_HTTPHEADER] = array('Expect:');
+	$curlopts[CURLOPT_HEADER] = true;
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
 	$log = date('YmdHis').' '.$_SERVER['REMOTE_ADDR'].' '.$request['url'].' '.$request['method'].' '.$isauth."\n";
