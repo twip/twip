@@ -14,7 +14,13 @@
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
 	if($request['method']=='post'){
+		file_put_contents('post',implode($_POST));
 		$curlopts[CURLOPT_POST] = true;
+		if(get_magic_quotes_gpc()){
+			foreach($_POST as $key => $value){
+				$_POST[$key] = stripslashes($_POST[$key]);
+			}
+		}
 		$curlopts[CURLOPT_POSTFIELDS] = $_POST;
 	}
 	$curlopts[CURLOPT_RETURNTRANSFER] = true;
