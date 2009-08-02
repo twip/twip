@@ -2,6 +2,7 @@
 	$webroot = '/twip/trunk'; // where you put your twip index.php file.
 	$twitter = 'http://twitter.com'; //the upper api address. you can set this to another api proxy.
 	$logfile = 'log.txt';
+	date_default_timezone_set('Etc/GMT-8'); //define your timezone. If you are in China, leave this as it is. #ChinaBlocksTwitter!
 
 
 	$request = array();
@@ -14,7 +15,7 @@
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
 	if($request['method']=='post'){
-		file_put_contents('post',implode($_POST));
+		//file_put_contents('post',implode($_POST));
 		$curlopts[CURLOPT_POST] = true;
 		if(get_magic_quotes_gpc()){
 			foreach($_POST as $key => $value){
@@ -29,7 +30,7 @@
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
 	curl_exec($ch);
-	$log = date('YmdHis').' '.$_SERVER['REMOTE_ADDR'].' '.$request['url'].' '.$request['method'].' '.$isauth."\n";
+	$log = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$request['url'].' '.$request['method'].' '.$isauth."\n";
 	file_put_contents($logfile,$log,FILE_APPEND);
 	$headerlen = curl_getinfo( $ch,CURLINFO_HEADER_SIZE );
 	$header = substr($ret,0,$headerlen);
@@ -37,6 +38,6 @@
 	foreach($headerarr as $item){
 		header(trim($item));
 	}
-	echo substr($ret,-strlen($ret) + $headerlen - 1 );
+	echo substr($ret,-strlen($ret) + $headerlen  );
 	//file_put_contents('ret',$ret);
 ?>
