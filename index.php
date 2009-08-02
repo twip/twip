@@ -6,15 +6,15 @@
 
 
 	$request = array();
-	$request['url'] = substr( $_SERVER['REQUEST_URI'] , -strlen($_SERVER['REQUEST_URI']) + strlen($webroot) );
-	$request['method'] = ( $_POST==false ) ? 'get' : 'post';
-	$ch = curl_init($twitter.$request['url']);
+	$url = substr( $_SERVER['REQUEST_URI'] , -strlen($_SERVER['REQUEST_URI']) + strlen($webroot) );
+	$method = $_SERVER['REQUEST_METHOD'];
+	$ch = curl_init($twitter.$url);
 	$curlopts = array();
 	if(isset($_SERVER['PHP_AUTH_USER'])){
 		$isauth = 'auth';
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
-	if($request['method']=='post'){
+	if( $method =='POST' || $method == 'DELETE' ){
 		//file_put_contents('post',implode($_POST));
 		$curlopts[CURLOPT_POST] = true;
 		if(get_magic_quotes_gpc()){
@@ -30,7 +30,7 @@
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
 	curl_exec($ch);
-	$log = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$request['url'].' '.$request['method'].' '.$isauth."\n";
+	$log = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$url.' '.$method.' '.$isauth."\n";
 	file_put_contents($logfile,$log,FILE_APPEND);
 	$headerlen = curl_getinfo( $ch,CURLINFO_HEADER_SIZE );
 	$header = substr($ret,0,$headerlen);
