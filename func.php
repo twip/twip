@@ -1,6 +1,8 @@
 <?php
 	function echoheader($ch,$str){
-		header($str);
+		if(strpos($str,'Content-Length:') !== false ){
+			header($str);
+		}
 		return strlen($str);
 	}
 	function dolog($str = ''){

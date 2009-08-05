@@ -31,15 +31,20 @@
 	$method = $_SERVER['REQUEST_METHOD'];
 	$ch = curl_init($twitter.$requesturl);
 
-	$curlopts = array();
-	if( empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['REMOTE_USER']) ){
-		$a = base64_decode( substr($_SERVER["REMOTE_USER"],6)) ;
+	//workaround for running PHP in cgi mode
+	if( $_SERVER['PHP_AUTH_USER']=='' ){
+		$a = base64_decode( substr($_SERVER["REDIRECT_HTTP_AUTHORIZATION"],6)) ;
 		list($name, $password) = explode(':', $a);
 		$_SERVER['PHP_AUTH_USER'] = $name;
 		$_SERVER['PHP_AUTH_PW']    = $password;
+		$isauth = 'cgiauth.'.$_SERVER['PHP_AUTH_USER'];
 	}
+	else {
+		$isauth = 'modauth.'.$_SERVER['PHP_AUTH_USER'];
+	}
+
+	$curlopts = array();
 	if(isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] !='' ){
-		$isauth = 'auth.'.$_SERVER['PHP_AUTH_USER'];
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
 	if( $method =='POST' || $method == 'DELETE' ){
@@ -65,11 +70,7 @@
 	else if ($type == 'xml'){
 		$ret = str_replace('http://static.twitter.com/images/default_profile_normal.png',$apiurl.'default_profile_normal.png',$ret);
 	}
+	header('Content-Length: '.strlen($ret));
 	echo $ret;
-	file_put_contents('ret',$ret);
-	if( $ret === false ){
-		dolog(curl_error($ch));
-		exit();
-	}
 	dolog();
 ?>
