@@ -1,6 +1,6 @@
 <?php
 	function echoheader($ch,$str){
-		if(strpos($str,'Content-Length:') !== false ){
+		if(strpos($str,'Content-Length:') === false ){
 			header($str);
 		}
 		return strlen($str);

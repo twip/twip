@@ -30,6 +30,7 @@
 	}
 	$method = $_SERVER['REQUEST_METHOD'];
 	
+	//with Twitter search API
 	if(strpos($requesturl,'/search.') !== false ){
 		$ch = curl_init('http://search.twitter.com'.$requesturl);
 	}
@@ -38,18 +39,17 @@
 	}
 
 	//workaround for running PHP in cgi mode
-	$isauth='noauth';
-	if($method != 'GET' ){
-		if( $_SERVER['PHP_AUTH_USER']=='' ){
-			$a = base64_decode( substr($_SERVER["REDIRECT_HTTP_AUTHORIZATION"],6)) ;
-			list($name, $password) = explode(':', $a);
-			$_SERVER['PHP_AUTH_USER'] = $name;
-			$_SERVER['PHP_AUTH_PW']    = $password;
-			$isauth = 'cgiauth.'.$_SERVER['PHP_AUTH_USER'];
-		}
-		else {
-			$isauth = 'modauth.'.$_SERVER['PHP_AUTH_USER'];
-		}
+	if( $_SERVER['PHP_AUTH_USER']=='' ){
+		$auth = empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION']:$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+		$a = base64_decode( substr($auth,6)) ;
+		list($name, $password) = explode(':', $a);
+		$_SERVER['PHP_AUTH_USER'] = $name;
+		$_SERVER['PHP_AUTH_PW']    = $password;
+		if( $name == '') $isauth = 'noauth';
+		else $isauth = 'cgiauth.'.$_SERVER['PHP_AUTH_USER'];
+	}
+	else {
+		$isauth = 'modauth.'.$_SERVER['PHP_AUTH_USER'];
 	}
 
 	$curlopts = array();
