@@ -31,7 +31,7 @@
 	$method = $_SERVER['REQUEST_METHOD'];
 	
 	//with Twitter search API
-	if(strpos($requesturl,'/search.') !== false ){
+	if(strpos($requesturl,'/search.') !== false || strpos($requesturl,'/trends') !== false ){
 		$ch = curl_init('http://search.twitter.com'.$requesturl);
 	}
 	else {
