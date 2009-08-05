@@ -32,8 +32,14 @@
 	$ch = curl_init($twitter.$requesturl);
 
 	$curlopts = array();
-	if(isset($_SERVER['PHP_AUTH_USER'])){
-		$isauth = 'auth';
+	if(empty($_SERVER['PHP_AUTH_USER'])){
+		$a = base64_decode( substr($_SERVER["REMOTE_USER"],6)) ;
+		list($name, $password) = explode(':', $a);
+		$_SERVER['PHP_AUTH_USER'] = $name;
+		$_SERVER['PHP_AUTH_PW']    = $password;
+	}
+	if(isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] !='' ){
+		$isauth = 'auth.'.$_SERVER['PHP_AUTH_USER'];
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
 	if( $method =='POST' || $method == 'DELETE' ){
