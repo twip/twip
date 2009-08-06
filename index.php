@@ -32,7 +32,7 @@
 	
 	//with Twitter search API
 	if(strpos($requesturl,'/search.') !== false || strpos($requesturl,'/trends') !== false ){
-		$ch = curl_init('http://search.twitter.com'.$requesturl);
+		$ch = curl_init($twsearch.$requesturl);
 	}
 	else {
 		$ch = curl_init($twitter.$requesturl);
