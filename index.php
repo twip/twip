@@ -8,9 +8,9 @@
 	else{
 		$apiurl = 'http://'.$_SERVER['HTTP_HOST'].$webroot.'/';
 	}
-	$requesturl = substr( $_SERVER['REQUEST_URI'] , -strlen($_SERVER['REQUEST_URI']) + strlen($webroot) );
+	$requesturl = substr( $_SERVER['REQUEST_URI'] , strlen($webroot) );
 	if($requesturl == '/'){
-		echo '<html><head><title>Twip,Twitter API proxy in PHP.</title></head><body><h1>Twip,Twitter API proxy in PHP.</h1><p>This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />Please use '.$apiurl.' in your Twitter Client.<br />Visit <a href="http://code.google.com/p/twip/">Twip </a> for more details.</p></body></html>';
+		echo '<html><head><title>Twip,Twitter API proxy in PHP.</title></head><body><h1>Twip,Twitter API proxy in PHP.</h1><p>This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />Please use '.$apiurl.'  as a Twitter API URI in your Twitter Client.<br />Visit <a href="http://code.google.com/p/twip/">Twip </a> for more details.</p></body></html>';
 		exit();
 	}
 
@@ -39,6 +39,7 @@
 	}
 
 	//workaround for running PHP in cgi mode
+	//fixme : this works on a godaddy virtual host, but I didn't test much.
 	if( $_SERVER['PHP_AUTH_USER']=='' ){
 		$auth = empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION']:$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
 		$a = base64_decode( substr($auth,6)) ;
@@ -58,13 +59,13 @@
 	}
 	if( $method =='POST' || $method == 'DELETE' ){
 		$curlopts[CURLOPT_POST] = true;
-		if(get_magic_quotes_gpc()){
-			foreach($_POST as $key => $value){
-				$_POST[$key] = stripslashes($_POST[$key]);
-			}
-		}
 		foreach($_POST as $key => $value){
-			$_POST[$key] = $key.'='.urlencode($value);
+			if(get_magic_quotes_gpc()){
+				$_POST[$key] = $key .'='.urlencode(stripslashes($_POST[$key]));
+			}
+			else{
+				$_POST[$key] = $key.'='.urlencode($value);
+			}
 		}
 		$curlopts[CURLOPT_POSTFIELDS] = implode('&',$_POST);
 	}
@@ -81,5 +82,7 @@
 	}
 	header('Content-Length: '.strlen($ret));
 	echo $ret;
-	dolog();
+	if( $dolog == true ){
+		dolog();
+	}
 ?>
