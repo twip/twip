@@ -14,7 +14,7 @@
 		file_put_contents($logfile,$log,FILE_APPEND);
 	}
 	function isSSL(){
-		if($_SERVER['HTTPS'] == 1 || $_SERVER['HTTPS'] == 'on') return true;
+		if(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 1 || $_SERVER['HTTPS'] == 'on' ) ) return true;
 		else return false;
 	}
 ?>
