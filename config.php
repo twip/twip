@@ -8,6 +8,9 @@
 
 	if ( $webroot == '' ){
 		$webroot  = dirname(substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT'])));
+		if ( $webroot == '/' ) {
+			$webroot = '';
+		}
 	}
 
 ?>
