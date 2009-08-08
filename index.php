@@ -78,6 +78,24 @@
 	$curlopts[CURLOPT_HTTPHEADER] = array('Expect:');
 	$curlopts[CURLOPT_HEADERFUNCTION] = 'echoheader';
 	if( isset( $_SERVER['HTTP_USER_AGENT'] ) ) $curlopts[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'] ;
+
+	//proxy support
+	if( $useproxy && isset($proxy_type)){
+		if( $proxy_type =='http' ) {
+			$curlopts[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
+		}
+		else if( $proxy_type =='socks5' ) {
+			$curlopts[CURLOPT_PROXYTYPE] = CURLPROXY_SOCKS5;
+		}
+
+		if( isset($proxy) && $proxy !='' ){
+			$curlopts[CURLOPT_PROXY] = $proxy;
+			if(isset($proxy_auth) && $proxy_auth !='' ){
+				$curlopts[CURLOPT_PROXYUSERPWD] = $proxy_auth;
+			}
+		}
+	}
+
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
 	if($type == 'json'){

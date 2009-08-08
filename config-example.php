@@ -6,6 +6,22 @@
 	$logfile = 'log.txt';
 	date_default_timezone_set('Etc/GMT-8'); //define your timezone. If you are in China, leave this as it is. #ChinaBlocksTwitter!
 
+	$useproxy = false;
+	
+	//proxy setting, in case you need it...
+	//note: if your proxy doesn't need authentication, leave $proxy_auth blank, or comment it out.
+
+	//if you want to make twip work with tor...
+	//$proxy_type = 'socks5';
+	//$proxy = '127.0.0.1:9050';
+	//$proxy_auth = 'username:password';
+	
+	//or if you want to make twip with a normal http proxy
+	//$proxy_type = 'http';
+	//$proxy = 'ip:port';
+	//$proxy_auth = 'username:password';
+
+
 	if ( $webroot == '' ){
 		$webroot  = dirname(substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT'])));
 		if ( $webroot == '/' ) {
