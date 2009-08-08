@@ -72,6 +72,7 @@
 	$curlopts[CURLOPT_RETURNTRANSFER] = true;
 	$curlopts[CURLOPT_HTTPHEADER] = array('Expect:');
 	$curlopts[CURLOPT_HEADERFUNCTION] = 'echoheader';
+	if( isset( $_SERVER['HTTP_USER_AGENT'] ) ) $curlopts[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'] ;
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
 	if($type == 'json'){
