@@ -1,5 +1,6 @@
 <?php
-	$webroot = ''; // If the $webroot doesn't recognize correctly, you can manually specify one here.
+	//$webroot = '';
+	// If the $webroot doesn't recognize correctly, you can manually specify one here.
 	$twitter = 'http://twitter.com'; //the upper api address. you can set this to another api proxy.
 	$twsearch = 'http://search.twitter.com'; //the upper search api address. you can set this to another search api proxy.
 	$dolog = true;
@@ -22,7 +23,7 @@
 	//$proxy_auth = 'username:password';
 
 
-	if ( $webroot == '' ){
+	if ( !isset($webroot) ){
 		$webroot  = dirname(substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT'])));
 		if ( $webroot == '/' ) {
 			$webroot = '';
