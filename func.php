@@ -10,7 +10,7 @@
 		global $requesturl;
 		global $method;
 		global $isauth;
-		$log = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$requesturl.' '.$method.' '.$isauth.' '.$str."\n";
+		$log = date('Y-m-d H:i:s').' '.$_SERVER['REMOTE_ADDR'].' '.$_SERVER['HTTP_USER_AGENT'].' '.$requesturl.' '.$method.' '.$isauth.' '.$str."\n";
 		file_put_contents($logfile,$log,FILE_APPEND);
 	}
 	function isSSL(){
