@@ -45,7 +45,7 @@
 
 	//workaround for running PHP in cgi mode
 	//fixme : this works on a godaddy virtual host, but I didn't test much.
-	if( $_SERVER['PHP_AUTH_USER']=='' ){
+	if( !isset($_SERVER['PHP_AUTH_USER']) ){
 		$auth = empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION']:$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
 		$a = base64_decode( substr($auth,6)) ;
 		list($name, $password) = explode(':', $a);

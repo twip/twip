@@ -7,6 +7,7 @@
 	$logfile = 'log.txt';
 	date_default_timezone_set('Etc/GMT-8'); //define your timezone. If you are in China, leave this as it is. #ChinaBlocksTwitter!
 
+	$debug = false;
 	$useproxy = false;
 	
 	//proxy setting, in case you need it...
