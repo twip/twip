@@ -12,28 +12,53 @@ $(document).ready(function() {
 
 	$('#msg').ajaxStart(function() {
 		$(this).empty();
-		$(this).append("loading...");
-		$(this).css("color","blue");
+		$(this).append("Loading...");
+		$('#msg').css({color:"blue", fontSize:"24px"});
 	});
 
 	$.getJSON(url, params, function (json) {
-		var content_inner_html='';
+		$('#content').empty();
 		$.each(json, function(index, status) {
-			content_inner_html+='<tr><td>'+(index+1)+'</td><td>'+status.text+'</td><td>'+status.user.screen_name+'</td></tr>';
+			var row=$('<tr></tr>');
+
+			var userTd=$('<td></td');
+			userTd.attr({align : 'center'});
+			
+			var imgDiv=$('<div></div>');
+			var img=$('<img></img>');
+			img.attr({src : status.user.profile_image_url});
+			imgDiv.append(img);
+
+			var nameDiv=$('<div></div>');
+			nameDiv.append(status.user.screen_name);
+
+			userTd.append(imgDiv).append(nameDiv);
+			
+			var textTd=$('<td></td');
+			textTd.append(status.text);
+
+			var timeTd=$('<td></td');
+			var date=new Date(status.created_at);
+			var dateStr=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes();
+			alert(dateStr);
+			timeTd.append(dateStr);
+
+			row.append(userTd).append(textTd).append(timeTd);
+
+			$('#content').append(row);
 		});
 		
-		$('#content').empty();
-		$('#content').append(content_inner_html);
+		//$('#content').append(content_inner_html);
 		
 		$('#msg').empty();
-		$('#msg').append("ok!");
-		$('#msg').css("color","green");
+		$('#msg').append("Ok!");
+		$('#msg').css({color:"green", fontWeight:"bold", fontSize:"24px"});
 	});
 
 	$('#msg').ajaxError(function() {
 		$(this).empty();
-		$(this).append("some error occurs"); 
-		$(this).css("color","red");
+		$(this).append("Failed!"); 
+		$('#msg').css({color:"red", fontWeight:"bold", fontSize:"24px"});
 	});
 });
 
@@ -43,7 +68,7 @@ $(document).ready(function() {
 <h1>Twip Test Page</h1>
 <p>Get the latest 5 statuses in your friend time line</p>
 <p>Input your twitter username and password in the popup dialog</p>
-<div id="msg" style="font: bold;"></div>
-<table id="content" border="1"></table>
+<div id="msg"></div>
+<table id="content" border="1" width="100%"></table>
 </body>
 </html>
