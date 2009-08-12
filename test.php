@@ -40,7 +40,6 @@ $(document).ready(function() {
 			var timeTd=$('<td></td');
 			var date=new Date(status.created_at);
 			var dateStr=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes();
-			alert(dateStr);
 			timeTd.append(dateStr);
 
 			row.append(userTd).append(textTd).append(timeTd);
