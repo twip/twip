@@ -42,7 +42,7 @@
 	else {
 		$ch = curl_init($twitter.$requesturl);
 	}
-
+	
 	//workaround for running PHP in cgi mode
 	//fixme : this works on a godaddy virtual host, but I didn't test much.
 	if( !isset($_SERVER['PHP_AUTH_USER']) ){
@@ -57,7 +57,7 @@
 	else {
 		$isauth = 'modauth.'.$_SERVER['PHP_AUTH_USER'];
 	}
-
+	
 	$curlopts = array();
 	if(isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] !='' ){
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
@@ -106,7 +106,6 @@
 	}
 	header('Content-Length: '.strlen($ret));
 	echo $ret;
-	if( $dolog == true ){
-		dolog();
-	}
+	
+	dolog();
 ?>

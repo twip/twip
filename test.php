@@ -19,25 +19,26 @@ $(document).ready(function() {
 	$.getJSON(url, params, function (json) {
 		$('#content').empty();
 		$.each(json, function(index, status) {
-			var row=$('<tr></tr>');
+			var row=$('<tr />');
 
-			var userTd=$('<td></td');
+			var userTd=$('<td />');
 			userTd.attr({align : 'center'});
 			
-			var imgDiv=$('<div></div>');
-			var img=$('<img></img>');
-			img.attr({src : status.user.profile_image_url});
+			var imgDiv=$('<div />');
+			var img=$('<img />');
+			img.attr({src: status.user.profile_image_url, width: '48', height: '48'});
 			imgDiv.append(img);
 
-			var nameDiv=$('<div></div>');
+			var nameDiv=$('<div />');
 			nameDiv.append(status.user.screen_name);
 
 			userTd.append(imgDiv).append(nameDiv);
 			
-			var textTd=$('<td></td');
+			var textTd=$('<td />');
 			textTd.append(status.text);
 
-			var timeTd=$('<td></td');
+			var timeTd=$('<td />');
+			timeTd.attr({width: '15%'});
 			var date=new Date(status.created_at);
 			var dateStr=date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes();
 			timeTd.append(dateStr);
