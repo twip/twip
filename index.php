@@ -6,6 +6,8 @@
 
 	require('config.php');
 	require('func.php');
+	
+	checkConfig();
 
 	if(isSSL()){
 		$apiurl = 'https://'.$_SERVER['HTTP_HOST'].$webroot.'/';

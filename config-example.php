@@ -22,20 +22,4 @@
 	//$proxy_type = 'http';
 	//$proxy = 'ip:port';
 	//$proxy_auth = 'username:password';
-
-
-	if ( !isset($webroot) ){
-		$webroot  = dirname(substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT'])));
-		if ( $webroot == '/' ) {
-			$webroot = '';
-		}
-	}
-	
-	//if user set $twitter or $twsearch to the twip itself, server will lose response
-	if( (strpos($twitter, $_SERVER['HTTP_HOST']) !== false) 
-			|| (strpos($twsearch, $_SERVER['HTTP_HOST']) !== false) ){
-		////fixme: need output some error headers or msgs?
-		exit();
-	}
-
 ?>

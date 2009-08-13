@@ -1,4 +1,33 @@
 <?php
+	function checkConfig() {
+		global $webroot;
+		if ( !isset($webroot) ){
+			$webroot  = dirname(substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT'])));
+			if ( $webroot == '/' ) {
+				$webroot = '';
+			}
+		}
+	
+		//if user set $twitter or $twsearch to the twip itself, server will lose response
+		global $twitter;
+		global $twsearch;
+		if( (strpos($twitter, $_SERVER['HTTP_HOST']) !== false) 
+				|| (strpos($twsearch, $_SERVER['HTTP_HOST']) !== false) ){
+			////fixme: need output some error headers or msgs?
+			exit();
+		}
+		
+		//remove the end / in $twitter if it exists
+		if(eregi("/$", $twitter)) {
+			$twitter=eregi_replace("/$", "", $twitter);
+		}
+		
+		//remove the end / in $twsearch if it exists
+		if(eregi("/$", $twsearch)) {
+			$twsearch=eregi_replace("/$", "", $twsearch);
+		}
+	}
+
 	function echoheader($ch,$str){
 		if(strpos($str,'Content-Length:') === false ){
 			header($str);
