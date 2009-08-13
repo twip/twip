@@ -64,6 +64,25 @@
 	if(isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_USER'] !='' ){
 		$curlopts[CURLOPT_USERPWD] = $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
 	}
+	//cache support
+	//only cache non-auth and GET request
+	//fixme: no log if cache hits
+	$pattern = 'since_id=[0-9]*';
+	$replace = 'since_id=';
+	$cache_file = $cache_dir . '/' . urlencode(ereg_replace($pattern,$replace,$requesturl));
+	if( $isauth =='noauth' && $cache && $method == 'GET' ) {
+		if(strpos($requesturl,'/search.') === false  ){
+			if(!file_exists( $cache_dir )){
+				mkdir( $cache_dir );
+			}
+			if( is_dir($cache_dir) ){
+				if( file_exists($cache_file) && (time() - filemtime($cache_file) <= $cache_timeout) ){
+					readfile($cache_file);
+					exit();
+				}
+			}
+		}
+	}
 	if( $method =='POST' || $method == 'DELETE' ){
 		$curlopts[CURLOPT_POST] = true;
 		foreach($_POST as $key => $value){
@@ -108,6 +127,11 @@
 	}
 	header('Content-Length: '.strlen($ret));
 	echo $ret;
+	if( $isauth == 'noauth' && $cache && $method == 'GET'){
+		if(strpos($requesturl,'/search.') === false ){
+			file_put_contents( $cache_file , $ret);
+		}
+	}
 	
 	dolog();
 ?>

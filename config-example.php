@@ -9,6 +9,10 @@
 
 	$debug = false;
 	$useproxy = false;
+
+	$cache = false;
+	$cache_dir = 'cache';
+	$cache_timeout = 300 ;
 	
 	//proxy setting, in case you need it...
 	//note: if your proxy doesn't need authentication, leave $proxy_auth blank, or comment it out.
