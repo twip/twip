@@ -127,11 +127,18 @@
 	}
 	header('Content-Length: '.strlen($ret));
 
-	if($docompress && Extension_Loaded('zlib')) {dolog("compress begin"); Ob_Start('ob_gzhandler');}
+	if($docompress && Extension_Loaded('zlib')) {
+		if(!Ob_Start('ob_gzhandler')){
+			Ob_Start();
+		}
+		else $isauth.='.gzip';
+	}
 
 	echo $ret;
 	
-	if($docompress && Extension_Loaded('zlib')) {Ob_End_Flush(); dolog("compress end");}
+	if($docompress && Extension_Loaded('zlib')) {
+		Ob_End_Flush();
+	}
 	
 	if( $isauth == 'noauth' && $cache && $method == 'GET'){
 		if(strpos($requesturl,'/search.') === false ){
@@ -139,5 +146,5 @@
 		}
 	}
 	
-	dolog("request end");
+	dolog();
 ?>
