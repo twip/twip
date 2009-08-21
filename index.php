@@ -126,12 +126,18 @@
 		$ret = str_replace('http://static.twitter.com/images/default_profile_normal.png',$apiurl.'default_profile_normal.png',$ret);
 	}
 	header('Content-Length: '.strlen($ret));
+
+	if($docompress && Extension_Loaded('zlib')) {dolog("compress begin"); Ob_Start('ob_gzhandler');}
+
 	echo $ret;
+	
+	if($docompress && Extension_Loaded('zlib')) {Ob_End_Flush(); dolog("compress end");}
+	
 	if( $isauth == 'noauth' && $cache && $method == 'GET'){
 		if(strpos($requesturl,'/search.') === false ){
 			file_put_contents( $cache_file , $ret);
 		}
 	}
 	
-	dolog();
+	dolog("request end");
 ?>
