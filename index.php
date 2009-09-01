@@ -20,6 +20,7 @@
 		echo '<html><head><title>Twip,Twitter API proxy in PHP.</title></head><body><h1>Twip,Twitter API proxy in PHP.</h1><p>This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />Please use '.$apiurl.'  as a Twitter API URI in your Twitter Client.<br />Visit <a href="http://code.google.com/p/twip/">Twip </a> for more details. View test page <a href="test.php">HERE</a>.</p></body></html>';
 		exit();
 	}
+	else if(substr($requesturl,0,4)=='/api') $requesturl = substr($requesturl,4);
 
 	//fixme: this is ugly...but it works...
 	//if you have any good ideas,tell me~
