@@ -16,6 +16,7 @@
 	
 	$docompress = false;
 
+	$enable_oauth = false;
 	$CONSUMER_KEY = '';
 	$CONSUMER_SECRET = '';
 	$OAUTH_DIR = '/home/yegle/oauth/'; //IMPORTANT! never ever set this directory where web user can access! 

@@ -26,7 +26,7 @@
 	$method = $_SERVER['REQUEST_METHOD'];
 	
 	//oauth
-	if( isset( $_SERVER['PHP_AUTH_USER'] ) && $_SERVER['PHP_AUTH_USER'] && file_exists( $OAUTH_DIR.$_SERVER['PHP_AUTH_USER'] ) ){
+	if( $enable_oauth && isset( $_SERVER['PHP_AUTH_USER'] ) && $_SERVER['PHP_AUTH_USER'] && file_exists( $OAUTH_DIR.$_SERVER['PHP_AUTH_USER'] ) ){
 		list( $access_token, $access_token_secret ) = explode( '|', file_get_contents($OAUTH_DIR.file_get_contents( $OAUTH_DIR.$_SERVER['PHP_AUTH_USER'] )) );
 		$to = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET, $access_token, $access_token_secret );
 		list( $url, $args ) = explode( '?', $requesturl );
