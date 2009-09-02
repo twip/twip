@@ -15,6 +15,10 @@
 	$cache_timeout = 300 ;
 	
 	$docompress = false;
+
+	$CONSUMER_KEY = '';
+	$CONSUMER_SECRET = '';
+	$OAUTH_DIR = '/home/yegle/oauth/'; //IMPORTANT! never ever set this directory where web user can access! 
 	
 	//proxy setting, in case you need it...
 	//note: if your proxy doesn't need authentication, leave $proxy_auth blank, or comment it out.

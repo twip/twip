@@ -6,6 +6,7 @@
 
 	require('config.php');
 	require('func.php');
+	require_once( 'include/twitterOAuth.php' );
 	
 	checkConfig();
 
@@ -17,10 +18,47 @@
 	}
 	$requesturl = substr( $_SERVER['REQUEST_URI'] , strlen($webroot) );
 	if($requesturl == '/'){
-		echo '<html><head><title>Twip,Twitter API proxy in PHP.</title></head><body><h1>Twip,Twitter API proxy in PHP.</h1><p>This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />Please use '.$apiurl.'  as a Twitter API URI in your Twitter Client.<br />Visit <a href="http://code.google.com/p/twip/">Twip </a> for more details. View test page <a href="test.php">HERE</a>.</p></body></html>';
+		echo '<html><head><title>Twip,Twitter API proxy in PHP.</title></head><body><h2>Twip,Twitter API proxy in PHP.</h1><p>This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />Please use '.$apiurl.'  as a Twitter API URI in your Twitter Client.<br />Visit <a href="http://code.google.com/p/twip/">Twip </a> for more details. View test page <a href="test.php">HERE</a>.View oauth page <a href="oauth.php">HERE</a></p></body></html>';
 		exit();
 	}
 	else if(substr($requesturl,0,4)=='/api') $requesturl = substr($requesturl,4);
+
+	$method = $_SERVER['REQUEST_METHOD'];
+	
+	//oauth
+	if( isset( $_SERVER['PHP_AUTH_USER'] ) && $_SERVER['PHP_AUTH_USER'] && file_exists( $OAUTH_DIR.$_SERVER['PHP_AUTH_USER'] ) ){
+		list( $access_token, $access_token_secret ) = explode( '|', file_get_contents($OAUTH_DIR.file_get_contents( $OAUTH_DIR.$_SERVER['PHP_AUTH_USER'] )) );
+		$to = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET, $access_token, $access_token_secret );
+		list( $url, $args ) = explode( '?', $requesturl );
+		if( $method == 'POST' ){
+			$content = $to->OAuthRequest( $twitter.$url, $_POST, $method );
+		}
+		else{
+			$args = explode( '&',$args );
+			$arr = array();
+			foreach( $args as $arg ){
+				list( $key, $value ) = explode( '=', $arg );
+				$arr[$key] = $value;
+			}
+			$content = $to->OAuthRequest( $twitter.$url, $arr , $method );
+		}
+		header('Content-Length: '.strlen($content));
+		$isauth = 'oauth.'.$_SERVER['PHP_AUTH_USER'];
+		if($docompress && Extension_Loaded('zlib')) {
+			if(!Ob_Start('ob_gzhandler')){
+				Ob_Start();
+			}
+			else $isauth.='.gzip';
+		}
+
+		echo $content;
+		dolog();
+
+		if($docompress && Extension_Loaded('zlib')) {
+			Ob_End_Flush();
+		}
+		exit();
+	}
 
 	//fixme: this is ugly...but it works...
 	//if you have any good ideas,tell me~
@@ -36,7 +74,6 @@
 		header($_SERVER["SERVER_PROTOCOL"]." 501 Not Implemented");	
 		exit();
 	}
-	$method = $_SERVER['REQUEST_METHOD'];
 	
 	//with Twitter search API
 	if(strpos($requesturl,'/search.') !== false || strpos($requesturl,'/trends') !== false ){
