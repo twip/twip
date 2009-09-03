@@ -31,6 +31,11 @@
 		$to = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET, $access_token, $access_token_secret );
 		list( $url, $args ) = explode( '?', $requesturl );
 		if( $method == 'POST' ){
+			if( get_magic_quotes_gpc() ){
+				foreach( $_POST as $key =>$value ){
+					$_POST[$key] = stripslashes( $_POST[$key] );
+				}
+			}
 			$content = $to->OAuthRequest( $twitter.$url, $_POST, $method );
 		}
 		else{
