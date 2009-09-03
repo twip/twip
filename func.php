@@ -30,6 +30,11 @@
 
 	function echoheader($ch,$str){
 		if(strpos($str,'Content-Length:') === false ){
+			if(strpos($str,'Set-Cookie')!==false){
+				$str = str_replace('.twitter.com',$_SERVER['SERVER_NAME'],$str);
+				header($str);
+			}
+			else header($str);
 			header($str);
 		}
 		return strlen($str);
