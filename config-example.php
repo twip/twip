@@ -20,6 +20,17 @@
 	$CONSUMER_KEY = '';
 	$CONSUMER_SECRET = '';
 	$OAUTH_DIR = '/home/yegle/oauth/'; //IMPORTANT! never ever set this directory where web user can access! 
+
+	//If you don't want your API proxy widely used, you can set
+	//$limit_user to true then specify the IDs which can use your
+	//API proxy.$allowed_user is a PHP array, be careful not
+	//making any syntax errors.
+	$limit_user = false;
+	$allowed_user = array(
+		"username1",
+		"username2",
+		"username3"
+		);
 	
 	//proxy setting, in case you need it...
 	//note: if your proxy doesn't need authentication, leave $proxy_auth blank, or comment it out.

@@ -49,4 +49,11 @@
 		if(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 1 || $_SERVER['HTTPS'] == 'on' ) ) return true;
 		else return false;
 	}
+	function userallowed($username){
+		global $allowed_user;
+		if(!in_array($username,$allowed_user)){
+			return false;
+		}
+		else return true;
+	}
 ?>
