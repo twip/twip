@@ -170,12 +170,43 @@
 
 	curl_setopt_array($ch,$curlopts);
 	$ret = curl_exec($ch);
-	if($type == 'json'){
-		$ret = str_replace(json_encode("http://static.twitter.com/images/default_profile_normal.png"),json_encode($apiurl."default_profile_normal.png"),$ret);
+
+	//replace the widely blocked short urls with unblocked short url provider
+	if($replace_shorturl){
+		$short2long = array();
+		//bit.ly and j.mp
+		if(!empty($bitly_login) && !empty($bitly_apikey)){
+			if(preg_match_all('/(http:\/\/(bit\.ly|j\.mp)\/([a-z0-9]+))/i',$ret,$match)){
+				foreach($match[0] as $key => $short_url){
+					$url_id = $match[3][$key];
+					$str = file_get_contents('http://api.bit.ly/expand?version=2.0.1&shortUrl='.$short_url.'&login='.$bitly_login.'&apiKey='.$bitly_apikey);
+					$arr = json_decode($str,TRUE);
+					if($arr['statusCode']=='OK'){
+						$short2long[$short_url] = $arr['results'][$url_id]['longUrl'];
+					}
+				}
+			}
+		}
+		//ff.im,I hate ff.im!It sucks!
+		if(preg_match_all('/http:\/\/ff\.im\/([-a-z0-9]+)/i',$ret,$match)){
+				foreach($match[0] as $key => $short_url){
+						$url_id = $match[1][$key];
+						$str = file_get_contents('http://friendfeed-api.com/v2/short/'.$url_id);
+						$arr = json_decode($str);
+						if(strval($arr->url)!=''){
+								$short2long[$short_url] = strval($arr->url);
+						}
+				}
+		}
+		//the actual replace
+		foreach($short2long as $short_url => $long_url){
+				$new_short_url = file_get_contents('http://tinyurl.com/api-create.php?url='.urlencode($long_url));
+				if($new_short_url!=''){
+						$ret = str_replace($short_url,$new_short_url,$ret);
+				}
+		}
 	}
-	else if ($type == 'xml'){
-		$ret = str_replace('http://static.twitter.com/images/default_profile_normal.png',$apiurl.'default_profile_normal.png',$ret);
-	}
+
 	header('Content-Length: '.strlen($ret));
 
 	if($docompress && Extension_Loaded('zlib')) {

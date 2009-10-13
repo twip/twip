@@ -44,4 +44,8 @@
 	//$proxy_type = 'http';
 	//$proxy = 'ip:port';
 	//$proxy_auth = 'username:password';
+
+	$replace_shorturl = false;
+	$bitly_login = '';
+	$bitly_apikey = '';
 ?>
