@@ -46,6 +46,14 @@
 	//$proxy_auth = 'username:password';
 
 	$replace_shorturl = false;
+
+	//define your bit.ly login and API key here,needed to expand bit.ly and j.mp short URLs
+	//you can find it here:http://bit.ly/account/
 	$bitly_login = '';
 	$bitly_apikey = '';
+
+	//define your friendfeed login and remote key here
+	//you can find it here: http://friendfeed.com/remotekey
+	$friendfeed_login = '';
+	$friendfeed_remotekey = '';
 ?>

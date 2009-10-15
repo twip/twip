@@ -188,13 +188,16 @@
 			}
 		}
 		//ff.im,I hate ff.im!It sucks!
-		if(preg_match_all('/http:\/\/ff\.im\/([-a-z0-9]+)/i',$ret,$match)){
-				foreach($match[0] as $key => $short_url){
-						$url_id = $match[1][$key];
-						$str = file_get_contents('http://friendfeed-api.com/v2/short/'.$url_id);
-						$arr = json_decode($str);
-						if(strval($arr->url)!=''){
-								$short2long[$short_url] = strval($arr->url);
+		//NOTE:not all friendfeed links can be expanded, since some of the links are private.
+		if(!empty($friendfeed_login) && !empty($friendfeed_remotekey)){
+				if(preg_match_all('/http:\/\/ff\.im\/([-a-z0-9]+)/i',$ret,$match)){
+						foreach($match[0] as $key => $short_url){
+								$url_id = $match[1][$key];
+								$str = file_get_contents('http://'.$friendfeed_login.':'.$friendfeed_remotekey.'@friendfeed-api.com/v2/short/'.$url_id);
+								$arr = json_decode($str);
+								if(strval($arr->url)!=''){
+										$short2long[$short_url] = strval($arr->url);
+								}
 						}
 				}
 		}
