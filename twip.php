@@ -3,7 +3,8 @@ class twip{
 	const DEBUG = false;
 	const WEBROOT = 'twip';
 	const PARENT_API = 'https://twitter.com';
-	const ERR_LOGFILE = 'err.log';
+	const ERR_LOGFILE = 'err.txt';
+	const LOGFILE = 'log.txt';
 
 
 	public function twip ( $options = null ){
@@ -13,6 +14,7 @@ class twip{
 		$this->webroot = !empty($options['webroot']) ? $this->mytrim($options['webroot']) : self::WEBROOT;
 		$this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
 		$this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
+		$this->logfile = !empty($options['logfile']) ? $options['logfile'] : self::LOGFILE;
 		$this->replace_shorturl = !!$options['replace_shorturl'];
 		$this->pre_request();
 		$this->dorequest();
@@ -124,7 +126,7 @@ class twip{
 	}
 
 	private function errlog($str){
-		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->post_data.' '.$str;
+		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->post_data.' '.$this->username.' '.$str."\n";
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
 	}
 	private function replace_shorturl(){
@@ -142,7 +144,8 @@ class twip{
         }
 	}
 	private function dolog(){
-		return;
+		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->username."\n";
+		file_put_contents($this->logfile,$msg,FILE_APPEND);
 	}
 }
 ?>
