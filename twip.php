@@ -13,13 +13,7 @@ class twip{
 		$this->webroot = !empty($options['webroot']) ? $this->mytrim($options['webroot']) : self::WEBROOT;
 		$this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
 		$this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
-		$this->replace_shorturl = !!$options['replace_shorturl'] && !empty($options['bitly_login']) && !empty($options['bitly_api']) && !empty($options['ff_login']) && !empty($options['ff_remotekey']);
-		if($this->replace_shorturl){
-			$this->bitly_login = $options['bitly_login'];
-			$this->bitly_api = $options['bitly_api'];
-			$this->ff_login = $options['ff_login'];
-			$this->ff_apikey = $options['ff_remotekey'];
-		}
+		$this->replace_shorturl = !!$options['replace_shorturl'];
 		$this->pre_request();
 		$this->dorequest();
 		$this->post_request();
@@ -44,23 +38,23 @@ class twip{
 	private function dorequest(){
 		$url = $this->parent_api.'/'.$this->request_api;
 		$ch = curl_init($url);
-		$option = array();
+		$curl_opt = array();
 		if($this->method == 'POST'){
-			$option[CURLOPT_POST] = true;
-			$option[CURLOPT_POSTFIELDS] = $this->post_data;
+			$curl_opt[CURLOPT_POST] = true;
+			$curl_opt[CURLOPT_POSTFIELDS] = $this->post_data;
 		}
-		$option[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
-		$option[CURLOPT_RETURNTRANSFER] = true;
-		$option[CURLOPT_USERPWD] = $this->user_pw();
-		$option[CURLOPT_HEADERFUNCTION] = array($this,'echoheader');
-		curl_setopt_array($ch,$option);
+		$curl_opt[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
+		$curl_opt[CURLOPT_RETURNTRANSFER] = true;
+		$curl_opt[CURLOPT_USERPWD] = $this->user_pw();
+		$curl_opt[CURLOPT_HEADERFUNCTION] = array($this,'echoheader');
+		curl_setopt_array($ch,$curl_opt);
 		$this->ret = curl_exec($ch);
 		curl_close($ch);
 	}
 	private function post_request(){
 		$this->replace_shorturl();
 		header('Content-Length: '.strlen($this->ret));
-		echo $this->ret;
+        echo $this->ret;
 		$this->dolog();
 	}
 	private function user_pw(){
@@ -73,6 +67,7 @@ class twip{
 			$a = base64_decode( substr($auth,6)) ;
 			list($name, $password) = explode(':', $a);
 			$this->username = $name;
+            echo $name.':'.$password;
 			return $name.':'.$password;
 		}
 		else{
@@ -101,7 +96,8 @@ class twip{
 		else{
 			errlog($str);
 		}
-		$msg ="	<html>
+        $msg ="	
+                <html>
 				<head>
 				<title>Twip Message Page</title>
 				</head>
@@ -132,37 +128,18 @@ class twip{
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
 	}
 	private function replace_shorturl(){
-		$short2long = array();
-		//bit.ly and j.mp
-		if(preg_match_all('/(http:\/\/(bit\.ly|j\.mp)\/([a-z0-9]+))/i',$this->ret,$match)){
-			foreach($match[0] as $key => $short_url){
-				$url_id = $match[3][$key];
-				$url = 'http://api.bit.ly/expand?version=2.0.1&shortUrl='.$short_url.'&login='.$this->bitly_login.'&apiKey='.$this->bitly_api;
-				$arr = json_decode(file_get_contents($url),TRUE);
-				if($arr['statusCode']=='OK'){
-					$short2long[$short_url] = $arr['results'][$url_id]['longUrl'];
-				}
-			}
-		}
-		//ff.im,I hate ff.im!It sucks!
-		//NOTE:not all friendfeed links can be expanded, since some of the links are private.
-		if(preg_match_all('/http:\/\/ff\.im\/([-a-z0-9]+)/i',$this->ret,$match)){
-			foreach($match[0] as $key => $short_url){
-				$url_id = $match[1][$key];
-				$url = 'http://'.$this->ff_login.':'.$this->ff_remotekey.'@friendfeed-api.com/v2/short/'.$url_id;
-				$arr = json_decode(file_get_contents($url),TRUE);
-				if(strval($arr->url)!=''){
-					$short2long[$short_url] = strval($arr->url);
-				}
-			}
-		}
-		//the actual replace
-		foreach($short2long as $short_url => $long_url){
-			$new_short_url = file_get_contents('http://tinyurl.com/api-create.php?url='.urlencode($long_url));
-			if($new_short_url!=''){
-				$this->ret = str_replace($short_url,$new_short_url,$this->ret);
-			}
-		}
+        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly)\/[\w]+/";
+        preg_match_all($url_pattern,$this->ret,$matches);
+        if(!empty($matches)){
+            $query_arr = array();
+            foreach($matches as $shorturl){
+                $query_arr[] = "q=".$shorturl[0];
+            }
+            $query_str = implode("&",$query_arr);
+            $json_str = file_get_contents("http://www.longurlplease.com/api/v1.1?".$query_str);
+            $json_arr = json_decode($json_str,true);
+            $this->ret = str_replace(array_keys($json_arr),array_values($json_arr),$this->ret);
+        }
 	}
 	private function dolog(){
 		return;
