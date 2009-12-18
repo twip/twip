@@ -5,6 +5,7 @@ class twip{
 	const PARENT_API = 'http://twitter.com';
 	const ERR_LOGFILE = 'err.txt';
 	const LOGFILE = 'log.txt';
+	const LOGTIMEZONE = 'Etc/GMT-8';
 
 
 	public function twip ( $options = null ){
@@ -15,6 +16,7 @@ class twip{
 		$this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
 		$this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
 		$this->logfile = !empty($options['logfile']) ? $options['logfile'] : self::LOGFILE;
+		$this->log_timezone = !empty($options['log_timezone']) ? $options['log_timezone'] : self::LOGTIMEZONE;
 		$this->replace_shorturl = !!$options['replace_shorturl'];
 		$this->pre_request();
 		$this->dorequest();
@@ -127,6 +129,7 @@ class twip{
 	}
 
 	private function errlog($str){
+		date_default_timezone_set($this->log_timezone);		//set timezone
 		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->post_data.' '.$this->username.' '.$str."\n";
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
 	}
@@ -145,6 +148,7 @@ class twip{
         }
 	}
 	private function dolog(){
+		date_default_timezone_set($this->log_timezone);		//set timezone
 		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->username."\n";
 		file_put_contents($this->logfile,$msg,FILE_APPEND);
 	}
