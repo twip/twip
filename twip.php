@@ -2,7 +2,7 @@
 class twip{
 	const DEBUG = false;
 	const WEBROOT = 'twip';
-	const PARENT_API = 'https://twitter.com';
+	const PARENT_API = 'http://twitter.com';
 	const ERR_LOGFILE = 'err.txt';
 	const LOGFILE = 'log.txt';
 
@@ -54,7 +54,9 @@ class twip{
 		curl_close($ch);
 	}
 	private function post_request(){
-		$this->replace_shorturl();
+        if($this->replace_shorturl){
+		    $this->replace_shorturl();
+        }
 		header('Content-Length: '.strlen($this->ret));
         echo $this->ret;
 		$this->dolog();
@@ -69,7 +71,6 @@ class twip{
 			$a = base64_decode( substr($auth,6)) ;
 			list($name, $password) = explode(':', $a);
 			$this->username = $name;
-            echo $name.':'.$password;
 			return $name.':'.$password;
 		}
 		else{
@@ -130,7 +131,7 @@ class twip{
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
 	}
 	private function replace_shorturl(){
-        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly)\/[\w]+/";
+        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im)\/[\w]+/";
         preg_match_all($url_pattern,$this->ret,$matches);
         if(!empty($matches)){
             $query_arr = array();
