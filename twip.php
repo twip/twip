@@ -135,17 +135,18 @@ class twip{
 	}
 	private function replace_shorturl(){
         $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im)\/[\w]+/";
-        preg_match_all($url_pattern,$this->ret,$matches);
-        if(!empty($matches)){
+        
+        if(preg_match_all($url_pattern,$this->ret,$matches)){
             $query_arr = array();
-            foreach($matches as $shorturl){
-                $query_arr[] = "q=".$shorturl[0];
+            foreach($matches[0] as $shorturl){
+                $query_arr[] = "q=".$shorturl;
             }
             $query_str = implode("&",$query_arr);
             $json_str = file_get_contents("http://www.longurlplease.com/api/v1.1?".$query_str);
             $json_arr = json_decode($json_str,true);
-            $this->ret = str_replace(array_keys($json_arr),array_values($json_arr),$this->ret);
+           	$this->ret = str_replace(array_keys($json_arr),array_values($json_arr),$this->ret);
         }
+
 	}
 	private function dolog(){
 		date_default_timezone_set($this->log_timezone);		//set timezone
