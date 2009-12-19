@@ -151,7 +151,7 @@ class twip{
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
 	}
 	private function replace_shorturl(){
-        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im)\/[\w]+/";
+        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im)\/[\w|\-]+/";
         
         if(preg_match_all($url_pattern,$this->ret,$matches)){
             $query_arr = array();
