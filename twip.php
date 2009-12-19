@@ -1,6 +1,7 @@
 <?
 class twip{
 	const DEBUG = false;
+	const DOLOG = true;
 	const WEBROOT = 'twip';
 	const PARENT_API = 'http://twitter.com';
 	const ERR_LOGFILE = 'err.txt';
@@ -12,12 +13,14 @@ class twip{
 		$this->check_server();
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->debug = !!$options['debug'] || self::DEBUG;
+		$this->dolog = !!$options['dolog'] & self::DOLOG;
 		$this->webroot = !empty($options['webroot']) ? $this->mytrim($options['webroot']) : self::WEBROOT;
 		$this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
 		$this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
 		$this->logfile = !empty($options['logfile']) ? $options['logfile'] : self::LOGFILE;
 		$this->log_timezone = !empty($options['log_timezone']) ? $options['log_timezone'] : self::LOGTIMEZONE;
 		$this->replace_shorturl = !!$options['replace_shorturl'];
+		$this->docompress = !!$options['docompress'];
 		$this->pre_request();
 		$this->dorequest();
 		$this->post_request();
@@ -60,8 +63,22 @@ class twip{
 		    $this->replace_shorturl();
         }
 		header('Content-Length: '.strlen($this->ret));
+		
+		
+		if($this->docompress && Extension_Loaded('zlib')) {
+            if(!Ob_Start('ob_gzhandler')){
+                    Ob_Start();
+            }
+        }
+		
         echo $this->ret;
-		$this->dolog();
+		
+		if($this->docompress && Extension_Loaded('zlib')) {
+             Ob_End_Flush();
+        }
+        if($this->dolog){
+		    $this->dolog();
+		}
 	}
 	private function user_pw(){
 		if(!empty($_SERVER['PHP_AUTH_USER'])){
@@ -150,7 +167,7 @@ class twip{
 	}
 	private function dolog(){
 		date_default_timezone_set($this->log_timezone);		//set timezone
-		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->username."\n";
+		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->username.' compress: '.(!!$this->docompress?'yes':'no')."\n";
 		file_put_contents($this->logfile,$msg,FILE_APPEND);
 	}
 }
