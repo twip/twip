@@ -71,14 +71,7 @@
 
 	//fixme: this is ugly...but it works...
 	//if you have any good ideas,tell me~
-	$type = 'json';
-	if( strpos($requesturl,'.xml') !== false ){
-		$type='xml';
-	}
-	else if( strpos($requesturl,'.json') !== false ){
-		$type='json';
-	}
-	else{
+	if( strpos($requesturl,'.atom') === false && strpos($requesturl,'.xml') === false && strpos($requesturl,'.json') === false){
 		//since We only need to make twitter client to work
 		header($_SERVER["SERVER_PROTOCOL"]." 501 Not Implemented");	
 		exit();
@@ -146,8 +139,10 @@
 		}
 		$curlopts[CURLOPT_POSTFIELDS] = implode('&',$_POST);
 	}
+    $httpheader = getallheaders();
+    $httpheader[] = 'Expect:';
 	$curlopts[CURLOPT_RETURNTRANSFER] = true;
-	$curlopts[CURLOPT_HTTPHEADER] = array('Expect:');
+	$curlopts[CURLOPT_HTTPHEADER] = $httpheader;
 	$curlopts[CURLOPT_HEADERFUNCTION] = 'echoheader';
 	if( isset( $_SERVER['HTTP_USER_AGENT'] ) ) $curlopts[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'] ;
 
@@ -193,7 +188,7 @@
 				if(preg_match_all('/http:\/\/ff\.im\/([-a-z0-9]+)/i',$ret,$match)){
 						foreach($match[0] as $key => $short_url){
 								$url_id = $match[1][$key];
-								$str = file_get_contents('http://'.$friendfeed_login.':'.$friendfeed_remotekey.'@friendfeed-api.com/v2/short/'.$url_id);
+								$str = @file_get_contents('http://'.$friendfeed_login.':'.$friendfeed_remotekey.'@friendfeed-api.com/v2/short/'.$url_id);
 								$arr = json_decode($str);
 								if(strval($arr->url)!=''){
 										$short2long[$short_url] = strval($arr->url);
