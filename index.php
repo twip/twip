@@ -139,7 +139,11 @@
 		}
 		$curlopts[CURLOPT_POSTFIELDS] = implode('&',$_POST);
 	}
-    $httpheader = getallheaders();
+	
+	if(function_exists(getallheaders)) {
+		$httpheader = getallheaders();
+	}
+	
     $httpheader[] = 'Expect:';
 	$curlopts[CURLOPT_RETURNTRANSFER] = true;
 	$curlopts[CURLOPT_HTTPHEADER] = $httpheader;
