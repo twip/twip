@@ -32,12 +32,12 @@ class twip{
         if($this->request_api =='' || strpos($this->request_api,'index.php')!==false){
             $this->err();
         }
-        $arr = array();
+        if( strpos($this->request_api,'api/') === 0 ){
+            $this->request_api = substr($this->request_api,4);
+        }
+        $this->request_api = $this->mytrim($this->request_api);
         if($this->method == 'POST'){
-            foreach($_POST as $key => $value){
-                $arr[] = $key.'='.$value;
-            }
-            $this->post_data = implode('&',$arr);
+            $this->post_data = @file_get_contents('php://input');
         }
     }
 
@@ -53,7 +53,7 @@ class twip{
         $curl_opt[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
         $curl_opt[CURLOPT_RETURNTRANSFER] = true;
         $curl_opt[CURLOPT_USERPWD] = $this->user_pw();
-        $curl_opt[CURLOPT_HEADERFUNCTION] = array($this,'echoheader');
+        $curl_opt[CURLOPT_HEADERFUNCTION] = create_function('$ch,$str','if(strpos($str,\'Content-Length:\') === false ) { header($str); } return strlen($str);');
         curl_setopt_array($ch,$curl_opt);
         $this->ret = curl_exec($ch);
         curl_close($ch);
@@ -138,13 +138,6 @@ class twip{
         echo $msg;
         exit();
     }
-    private function echoheader($ch,$str){
-        if(strpos($str,'Content-Length:') === false ){
-            header($str);
-        }
-        return strlen($str);
-    }
-
     private function errlog($str){
         date_default_timezone_set($this->log_timezone);		//set timezone
         $msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->post_data.' '.$this->username.' '.$str."\n";
