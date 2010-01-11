@@ -7,6 +7,7 @@ class twip{
     const ERR_LOGFILE = 'err.txt';
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
+    const CGI_WORKAROUND = false;
 
 
     public function twip ( $options = null ){
@@ -21,6 +22,10 @@ class twip{
         $this->log_timezone = !empty($options['log_timezone']) ? $options['log_timezone'] : self::LOGTIMEZONE;
         $this->replace_shorturl = !!$options['replace_shorturl'];
         $this->docompress = !!$options['docompress'];
+        $this->cgi_workaround = ($options['cgi_workaround']==="YES I DO NEED THE WORKAROUND!") ? true : self::CGI_WORKAROUND;
+
+
+
         $this->pre_request();
         $this->dorequest();
         $this->post_request();
@@ -32,9 +37,7 @@ class twip{
         if($this->request_api =='' || strpos($this->request_api,'index.php')!==false){
             $this->err();
         }
-        if( strpos($this->request_api,'api/') === 0 ){
-            $this->request_api = substr($this->request_api,4);
-        }
+
         $this->request_api = $this->mytrim($this->request_api);
         if($this->method == 'POST'){
             $this->post_data = @file_get_contents('php://input');
@@ -43,6 +46,10 @@ class twip{
 
 
     private function dorequest(){
+        $this->pwd = $this->user_pw();
+        if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
+            $this->request_api = substr($this->request_api,4);
+        }
         $url = $this->parent_api.'/'.$this->request_api;
         $ch = curl_init($url);
         $curl_opt = array();
@@ -52,7 +59,7 @@ class twip{
         }
         $curl_opt[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
         $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-        $curl_opt[CURLOPT_USERPWD] = $this->user_pw();
+        $curl_opt[CURLOPT_USERPWD] = $this->pwd;
         $curl_opt[CURLOPT_HEADERFUNCTION] = create_function('$ch,$str','if(strpos($str,\'Content-Length:\') === false ) { header($str); } return strlen($str);');
         curl_setopt_array($ch,$curl_opt);
         $this->ret = curl_exec($ch);
@@ -92,9 +99,17 @@ class twip{
             $this->username = $name;
             return $name.':'.$password;
         }
-        else{
-            $this->username = 'nobody';
-            return '';
+        else if($this->cgi_workaround){
+            $pattern = '/^([^:]*):([^\/]*)[\/]+(.*)$/';
+            if(preg_match($pattern,$this->request_api,$matches)){
+                $this->request_api = $matches[3];
+                $this->username = $matches[1];
+                return $matches[1].':'.$matches[2];
+            }
+            else{
+                $this->username = 'nobody';
+                return '';
+            }
         }
     }
     private function mytrim($str){
