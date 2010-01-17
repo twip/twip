@@ -1,6 +1,6 @@
 <?
     require('twip.php');
-    $options['webroot'] = '/twip';
+    $options['webroot'] = '/twip';    //set this option to '/' if you are using host root
     $options['debug'] = false;
     $options['dolog'] = true;
     $options['logfile'] = 'log.txt';

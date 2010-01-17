@@ -33,7 +33,16 @@ class twip{
 
 
     private function pre_request(){
-        $this->request_api = strval(substr($_SERVER['REQUEST_URI'],strlen($this->webroot)+2));
+        if(strlen($this->webroot) == 0){//use "/" as webroot
+            $this->request_api = strval(substr($_SERVER['REQUEST_URI'],1));
+        }else{
+            if(stripos($_SERVER['REQUEST_URI'],$this->webroot) !== false){
+                $this->request_api =strval(substr($_SERVER['REQUEST_URI'],strlen($this->webroot) + 2));
+            }else{
+                $this->err();
+            }
+        }
+
         if($this->request_api =='' || strpos($this->request_api,'index.php')!==false){
             $this->err();
         }
@@ -135,21 +144,21 @@ class twip{
         }
         $msg ="
                 <html>
-				<head>
-				<title>Twip Message Page</title>
-				</head>
-				<body>
-				<h1>Twip Message Page</h1>
-				<div>
-				This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />
-				Visit Twip for more details. View test page <a herf=\"test.html\">HERE</a>.View oauth page HERE.<br />
-				</div>
-				<div>
-				".nl2br($str)."
-				</div>
-				</body>
-				</html>
-				";
+                <head>
+                <title>Twip Message Page</title>
+                </head>
+                <body>
+                <h1>Twip Message Page</h1>
+                <div>
+                This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />
+                Visit Twip for more details. View test page <a herf=\"test.html\">HERE</a>.View oauth page HERE.<br />
+                </div>
+                <div>
+                ".nl2br($str)."
+                </div>
+                </body>
+                </html>
+                ";
         echo $msg;
         exit();
     }
