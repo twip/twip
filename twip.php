@@ -4,6 +4,7 @@ class twip{
     const DOLOG = true;
     const WEBROOT = 'twip';
     const PARENT_API = 'http://twitter.com';
+    const PARENT_SEARCH_API = 'http://search.twitter.com';
     const ERR_LOGFILE = 'err.txt';
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
@@ -17,6 +18,7 @@ class twip{
         $this->dolog = !!$options['dolog'] & self::DOLOG;
         $this->webroot = !empty($options['webroot']) ? $this->mytrim($options['webroot']) : self::WEBROOT;
         $this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
+        $this->parent_search_api = !empty($options['parent_search_api']) ? $this->mytrim($options['parent_search_api']) : self::PARENT_SEARCH_API;
         $this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
         $this->logfile = !empty($options['logfile']) ? $options['logfile'] : self::LOGFILE;
         $this->log_timezone = !empty($options['log_timezone']) ? $options['log_timezone'] : self::LOGTIMEZONE;
@@ -59,7 +61,12 @@ class twip{
         if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
             $this->request_api = substr($this->request_api,4);
         }
-        $url = $this->parent_api.'/'.$this->request_api;
+        if( strpos($this->request_api,'search')===FALSE && strpos($this->request_api,'trends')===FALSE){
+            $url = $this->parent_api.'/'.$this->request_api;
+        }
+        else{
+            $url = $this->parent_search_api.'/'.$this->request_api;
+        }
         $ch = curl_init($url);
         $curl_opt = array();
         if($this->method == 'POST'){
