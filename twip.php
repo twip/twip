@@ -70,6 +70,7 @@ class twip{
         $curl_opt[CURLOPT_RETURNTRANSFER] = true;
         $curl_opt[CURLOPT_USERPWD] = $this->pwd;
         $curl_opt[CURLOPT_HEADERFUNCTION] = create_function('$ch,$str','if(strpos($str,\'Content-Length:\') === false ) { header($str); } return strlen($str);');
+        $curl_opt[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1 ;//avoid the "Expect: 100-continue" error
         curl_setopt_array($ch,$curl_opt);
         $this->ret = curl_exec($ch);
         curl_close($ch);
