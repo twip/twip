@@ -176,10 +176,20 @@ class twip{
             foreach($matches[0] as $shorturl){
                 $query_arr[] = "q=".$shorturl;
             }
-            $query_str = implode("&",$query_arr);
-            $json_str = file_get_contents("http://www.longurlplease.com/api/v1.1?".$query_str);
-            $json_arr = json_decode($json_str,true);
-           	$this->ret = str_replace(array_keys($json_arr),array_values($json_arr),$this->ret);
+            $offset = 0;
+            $query_count = 5;
+            $replace_arr = array();
+            do{
+                $tmp_arr = array_slice($query_arr,$offset,$query_count);
+                $query_str = implode("&",$tmp_arr);
+                $json_str = @file_get_contents("http://www.longurlplease.com/api/v1.1?".$query_str);
+                if( $json_str !==FALSE ){
+                    $json_arr = json_decode($json_str,true);
+                    $replace_arr = array_merge($json_arr,$replace_arr);
+                }
+                $offset+=$query_count;
+            }while( count($tmp_arr)===$query_count );//split the queries to avoid a too long query string.:
+           	$this->ret = str_replace(array_keys($replace_arr),array_values($replace_arr),$this->ret);
         }
 
     }
