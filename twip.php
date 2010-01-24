@@ -148,7 +148,7 @@ class twip{
             $str = 'Seems every thing is fine.';
         }
         else{
-            errlog($str);
+            $this->errlog($str);
         }
         $msg ="
                 <html>
