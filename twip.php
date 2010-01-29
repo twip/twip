@@ -196,6 +196,9 @@ class twip{
                 }
                 $offset+=$query_count;
             }while( count($tmp_arr)===$query_count );//split the queries to avoid a too long query string.:
+            foreach($replace_arr as $key=>$value){
+                $replace_arr[$key] = str_replace('&#039;', '&apos;', htmlspecialchars($value, ENT_QUOTES));
+            }
            	$this->ret = str_replace(array_keys($replace_arr),array_values($replace_arr),$this->ret);
         }
 
