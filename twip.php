@@ -25,6 +25,10 @@ class twip{
         $this->replace_shorturl = !!$options['replace_shorturl'];
         $this->docompress = !!$options['docompress'];
         $this->cgi_workaround = ($options['cgi_workaround']==="YES I DO NEED THE WORKAROUND!") ? true : self::CGI_WORKAROUND;
+        $this->private_api = !!$options['private_api'][0];
+        if($this->private_api){
+            $this->allowed_users = explode(',',$options['private_api']['allowed_users']);
+        }
 
 
 
@@ -58,6 +62,10 @@ class twip{
 
     private function dorequest(){
         $this->pwd = $this->user_pw();
+        if($this->private_api && !in_array($this->username,$this->allowed_users)){
+            header("HTTP/1.1 403 Forbidden");
+            exit();
+        }
         if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
             $this->request_api = substr($this->request_api,4);
         }
