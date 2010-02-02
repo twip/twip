@@ -3,8 +3,8 @@ class twip{
     const DEBUG = false;
     const DOLOG = true;
     const WEBROOT = 'twip';
-    const PARENT_API = 'http://twitter.com';
-    const PARENT_SEARCH_API = 'http://search.twitter.com';
+    const API_DIR = 'api';
+    const DEST_API = 'http://twitter.com';
     const ERR_LOGFILE = 'err.txt';
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
@@ -17,8 +17,8 @@ class twip{
         $this->debug = !!$options['debug'] || self::DEBUG;
         $this->dolog = !!$options['dolog'] & self::DOLOG;
         $this->webroot = !empty($options['webroot']) ? $this->mytrim($options['webroot']) : self::WEBROOT;
-        $this->parent_api = !empty($options['parent_api']) ? $this->mytrim($options['parent_api']) : self::PARENT_API;
-        $this->parent_search_api = !empty($options['parent_search_api']) ? $this->mytrim($options['parent_search_api']) : self::PARENT_SEARCH_API;
+        $this->api_dir = !empty($options['api_dir']) ? $this->mytrim($options['api_dir']) : self::API_DIR;
+        $this->dest_api = !empty($options['dest_api']) ? $this->mytrim($options['dest_api']) : self::DEST_API;
         $this->err_logfile = !empty($options['err_logfile']) ? $options['err_logfile'] : self::ERR_LOGFILE;
         $this->logfile = !empty($options['logfile']) ? $options['logfile'] : self::LOGFILE;
         $this->log_timezone = !empty($options['log_timezone']) ? $options['log_timezone'] : self::LOGTIMEZONE;
@@ -39,14 +39,14 @@ class twip{
 
 
     private function pre_request(){
+        $this->request_api = $_SERVER['REQUEST_URI'];
         if(strlen($this->webroot) == 0){//use "/" as webroot
-            $this->request_api = strval(substr($_SERVER['REQUEST_URI'],1));
+            $this->request_api = strval(substr($this->request_api,1));
+        }
+        if(stripos($_SERVER['REQUEST_URI'],$this->api_dir) !== false){
+            $this->request_api =strval(substr($_SERVER['REQUEST_URI'],strlen($this->api_dir) + 2));
         }else{
-            if(stripos($_SERVER['REQUEST_URI'],$this->webroot) !== false){
-                $this->request_api =strval(substr($_SERVER['REQUEST_URI'],strlen($this->webroot) + 2));
-            }else{
-                $this->err();
-            }
+            $this->err();
         }
 
         if($this->request_api =='' || strpos($this->request_api,'index.php')!==false){
@@ -54,6 +54,7 @@ class twip{
         }
 
         $this->request_api = $this->mytrim($this->request_api);
+        
         if($this->method == 'POST'){
             $this->post_data = @file_get_contents('php://input');
         }
@@ -69,12 +70,7 @@ class twip{
         if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
             $this->request_api = substr($this->request_api,4);
         }
-        if( strpos($this->request_api,'search')===FALSE && strpos($this->request_api,'trends')===FALSE){
-            $url = $this->parent_api.'/'.$this->request_api;
-        }
-        else{
-            $url = $this->parent_search_api.'/'.$this->request_api;
-        }
+        $url = $this->dest_api.'/'.$this->request_api;
         $ch = curl_init($url);
         $curl_opt = array();
         if($this->method == 'POST'){

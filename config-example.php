@@ -1,5 +1,4 @@
 <?
-    require('twip.php');
     $options['webroot'] = '/twip';    //set this option to '/' if you are using host root
     $options['debug'] = false;
     $options['dolog'] = true;
@@ -19,5 +18,4 @@
         "allowed_users" => "user_1,user_2,user_3",
         );
 
-    $twip = new twip($options);
 ?>
