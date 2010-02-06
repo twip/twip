@@ -69,11 +69,11 @@ class twip{
         if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
             $this->request_api = substr($this->request_api,4);
         }
-        if( strpos($this->request_api,'search')===FALSE && strpos($this->request_api,'trends')===FALSE){
-            $url = $this->parent_api.'/'.$this->request_api;
+        if( strpos($this->request_api,'search')===0 && strpos($this->request_api,'trends')===0){
+            $url = $this->parent_search_api.'/'.$this->request_api;
         }
         else{
-            $url = $this->parent_search_api.'/'.$this->request_api;
+            $url = $this->parent_api.'/'.$this->request_api;
         }
         $ch = curl_init($url);
         $curl_opt = array();
