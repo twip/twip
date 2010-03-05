@@ -167,7 +167,7 @@ class twip{
                 <h1>Twip Message Page</h1>
                 <div>
                 This is a Twitter API proxy,and is not intend to be viewed in a browser.<br />
-                Visit Twip for more details. View test page <a herf=\"test.html\">HERE</a>.View oauth page HERE.<br />
+                Visit Twip for more details. View test page <a href=\"test.html\">HERE</a>.View oauth page HERE.<br />
                 </div>
                 <div>
                 ".nl2br($str)."
