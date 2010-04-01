@@ -28,6 +28,9 @@ class twip{
         $this->private_api = !!$options['private_api'][0];
         if($this->private_api){
             $this->allowed_users = explode(',',$options['private_api']['allowed_users']);
+            foreach($this->allowed_users as $key=>$value){
+                $this->allowed_users[$key] = strtolower($value);
+            }
         }
 
 
@@ -114,21 +117,21 @@ class twip{
     }
     private function user_pw(){
         if(!empty($_SERVER['PHP_AUTH_USER'])){
-            $this->username = $_SERVER['PHP_AUTH_USER'];
+            $this->username = strtolower($_SERVER['PHP_AUTH_USER']);
             return $_SERVER['PHP_AUTH_USER'].':'.$_SERVER['PHP_AUTH_PW'];
         }
         else if(!empty($_SERVER['HTTP_AUTHORIZATION'])||!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])){
             $auth = empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION']:$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
             $a = base64_decode( substr($auth,6)) ;
             list($name, $password) = explode(':', $a);
-            $this->username = $name;
+            $this->username = strtolower($name);
             return $name.':'.$password;
         }
         else if($this->cgi_workaround){
             $pattern = '/^([^:]*):([^\/]*)[\/]+(.*)$/';
             if(preg_match($pattern,$this->request_api,$matches)){
                 $this->request_api = $matches[3];
-                $this->username = $matches[1];
+                $this->username = strtolower($matches[1]);
                 return $matches[1].':'.$matches[2];
             }
             else{
