@@ -7,7 +7,7 @@
     $options['replace_shorturl'] = true;
     $options['docompress'] = false;
     $options['cgi_workaround'] = false; //change this to "YES I DO NEED THE WORKAROUND!" to make this work
-    $options['parent_api'] = 'http://twitter.com';
+    $options['parent_api'] = 'http://api.twitter.com/1';
     $options['parent_search_api'] = 'http://search.twitter.com';
 
     //if you want to setup an API for limited users
