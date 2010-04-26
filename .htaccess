@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} login\.php [NC]
+RewriteRule . - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule \.(json|xml|rss|atom)$ index.php [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+</IfModule>
