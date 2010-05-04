@@ -29,5 +29,7 @@ switch ($connection->http_code) {
     break;
   default:
     /* Show notification if something went wrong. */
-    echo 'Could not connect to Twitter. Refresh the page or try again later.';
+    echo 'Could not connect to Twitter. Refresh the page or try again later.<hr />';
+	echo 'Debug info:<br /><br />';
+	var_dump($connection);
 }
