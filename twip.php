@@ -183,13 +183,13 @@ class twip{
         if($this->replace_shorturl){
             $this->replace_shorturl();
         }
-        header('Content-Length: '.strlen($this->ret));
-
 
         if($this->docompress && Extension_Loaded('zlib')) {
             if(!Ob_Start('ob_gzhandler')){
                 Ob_Start();
             }
+        } else {
+            header('Content-Length: '.strlen($this->ret));
         }
 
         echo $this->ret;
