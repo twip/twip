@@ -85,7 +85,7 @@ class twip{
 
         $this->request_api = $this->mytrim($this->request_api);
         if($this->method == 'POST'){
-            $this->post_data = @file_get_contents('php://input');
+            $this->post_data = $this->ProcessPostData((bool)stripos($this->request_api,'/update.'),$this->enable_oauth);
         }
 
 		if( strpos($this->request_api,'api/') === 0 ){//workaround for twhirl
@@ -143,12 +143,7 @@ class twip{
 			list( $oauthurl, $args ) = explode( '.', $this->request_api );
 			$connection->format = $args;
 			if( $this->method == 'POST' ){
-				if( get_magic_quotes_gpc() ){
-					foreach( $_POST as $key =>$value ){
-						$_POST[$key] = stripslashes( $_POST[$key] );
-					}
-				}
-				$this->ret = $connection->post($oauthurl, $_POST);
+				$this->ret = $connection->post($oauthurl, $this->post_data);
 			}
 			else{
 				$args = explode( '&',$args );
@@ -282,12 +277,13 @@ class twip{
 
     private function errlog($str){
 		date_default_timezone_set($this->log_timezone);		//set timezone
-		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$this->post_data.' '.$this->username.' '.$str."\n";
+		$postinfo = is_array($this->post_data)?serialize($this->post_data):$this->post_data;
+		$msg = date('Y-m-d H:i:s').' '.$this->request_api.' '.$postinfo.' '.$this->username.' '.$str."\n";
 		file_put_contents($this->err_logfile,$msg,FILE_APPEND);
     }
 
     private function replace_shorturl(){
-        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im)\/[\w|\-]+/";
+        $url_pattern = "/http:\/\/(?:j\.mp|bit\.ly|ff\.im|is\.gd|tinyurl\.com)\/[\w|\-]+/";
 
         if(preg_match_all($url_pattern,$this->ret,$matches)){
             $query_arr = array();
@@ -312,8 +308,89 @@ class twip{
             }
            	$this->ret = str_replace(array_keys($replace_arr),array_values($replace_arr),$this->ret);
         }
-
     }
+
+	private function ProcessPostData($autoCut=false,$returnAsArray=false)
+	{
+		if(empty($_POST)) return '';
+		if(!is_array($_POST)) return $_POST;
+
+		$c = 0;$out = '';
+		try{
+			foreach($_POST as $name => $value) {
+				if($c++ != 0) $out .= '&';
+				$out .= urlencode($name).'=';
+				
+				if(is_array($value)){
+					$out .= urlencode(serialize($value));
+				}else{
+					if(get_magic_quotes_gpc())
+						$value = stripslashes($value);
+
+					if($autoCut && $name == 'status')
+						$value = $this->sysSubStr($value,140,true);
+
+					$_POST[$name] = $value;
+					$out .= urlencode($value);
+				}
+			}
+		}  catch (Exception $e) {
+			$out = @file_get_contents('php://input');
+			$this->errlog($e->message);
+		}
+		if ($returnAsArray) return $_POST;
+		return $out;
+	}
+
+	/**
+    * Return part of a string(Enhance the function substr())
+    *
+    * @author                  Chunsheng Wang <wwccss@263.net>
+	* @modifier                bronco
+    * @param  string  $String  the string to cut.
+    * @param  int     $Length  the length of returned string.
+    * @param  booble  $Append  whether append "...": false|true
+    * @return string           the cutted string.
+    */
+    private function sysSubStr($String,$Length,$Append = false)
+    {
+        if (mb_strlen($String,'UTF-8') <= $Length ){
+            return $String;
+        }
+        else
+        {
+            $I = 0;
+            $Count = 0;
+
+            while ($Count < $Length)
+            {
+                $StringTMP = substr($String,$I,1);
+                if ( ord($StringTMP) >=224 )
+                {
+                    $StringTMP = substr($String,$I,3);
+                    $I = $I + 3;
+                }
+                elseif( ord($StringTMP) >=192 )
+                {
+                    $StringTMP = substr($String,$I,2);
+                    $I = $I + 2;
+                }
+                else
+                {
+                    $I = $I + 1;
+                }
+                $Count ++;
+                $StringLast[] = $StringTMP;
+            }
+            if($Append)
+                array_pop($StringLast);
+            $StringLast = implode("",$StringLast);
+            if($Append && $String != $StringLast)
+                $StringLast .= urldecode("%E2%80%A6"); //utf-8 code of "..." as a character
+            return $StringLast;
+        }
+    }
+
 
     private function dolog(){
         date_default_timezone_set($this->log_timezone);		//set timezone
