@@ -34,10 +34,11 @@ class twip{
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
     const CGI_WORKAROUND = false;
+	const NOBODY = 'nobody:nobody';
 
 
     public function twip ( $options = null ){
-		$this->issearch = false;
+		$this->special = false;
 		$this->url = '';
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->debug = !!$options['debug'] || self::DEBUG;
@@ -93,11 +94,11 @@ class twip{
         }
         if( strpos($this->request_api,'search')===0 || strpos($this->request_api,'trends')===0){
             $this->url = $this->parent_search_api.'/'.$this->request_api;
-			$this->issearch = true;
+			$this->special = true;
         }
         else{
             $this->url = $this->parent_api.'/'.$this->request_api;
-			$this->issearch = false;
+			$this->special = (strpos($this->request_api,'friendships/show') === 0);
         }
     }
 
@@ -105,12 +106,12 @@ class twip{
     private function dorequest(){
         $this->pwd = $this->user_pw();
 		list($this->username, $this->password) = explode(':', $this->pwd);
-        if( !$this->issearch && $this->private_api && !in_array($this->username,$this->allowed_users)){
+        if( !$this->special && $this->private_api && !in_array($this->username,$this->allowed_users)){
             header("HTTP/1.1 403 Forbidden");
             exit();
         }
 		//==============================================OAuth=================================================
-		if( !$this->issearch && $this->enable_oauth ) {
+		if( !$this->special && $this->enable_oauth ) {
 			if (empty($_SESSION['access_token'])) {
 				if( !file_exists( OAUTH_DIR.$this->username.'.oauth' )) {
 					header("HTTP/1.1 403 Forbidden");
@@ -165,7 +166,7 @@ class twip{
         }
         $curl_opt[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
         $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-		if ( !$this->issearch )
+		if ( $this->pwd != self::NOBODY )
 			$curl_opt[CURLOPT_USERPWD] = $this->pwd;
         $curl_opt[CURLOPT_HEADERFUNCTION] = create_function('$ch,$str','if(strpos($str,\'Content-Length:\') === false ) { header($str); } return strlen($str);');
         $curl_opt[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1 ;//avoid the "Expect: 100-continue" error
@@ -218,8 +219,8 @@ class twip{
             }
         }
 
-		if ( $this->issearch )
-			return "nobody:nobody";
+		if ( $this->special )
+			return self::NOBODY;
 
 		
 		if($this->private_api && empty($this->username))
