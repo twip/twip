@@ -180,19 +180,17 @@ class twip{
             $this->replace_shorturl();
         }
 
-        if($this->docompress && Extension_Loaded('zlib')) {
-            if(!Ob_Start('ob_gzhandler')){
-                Ob_Start();
-            }
+        ob_start();
+        if ($this->docompress && Extension_Loaded('zlib') && ob_start("ob_gzhandler")) {
+            echo $this->ret;
+            ob_end_flush();
         } else {
-            header('Content-Length: '.strlen($this->ret));
+            echo $this->ret;
         }
 
-        echo $this->ret;
+        header('Content-Length: '.ob_get_length());
+        ob_end_flush();
 
-        if($this->docompress && Extension_Loaded('zlib')) {
-            Ob_End_Flush();
-        }
         if($this->dolog){
             $this->dolog();
         }
@@ -256,7 +254,7 @@ class twip{
 		{
 			if(!isset($_SESSION['access_token']) && !isset($_SESSION["dologin"]))
 			{
-				$info = '<p style="color:#48AC1D">Seems everyting works fine.</p><p><u>';
+				$info = '<p style="color:#48AC1D">Seems everything works fine.</p><p><u>';
 				if ($this->enable_oauth) {
 					$info .= 'Using OAuth Authentication.</u>';
 					if (function_exists('mcrypt_module_open'))
