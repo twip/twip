@@ -59,7 +59,7 @@ class twip{
                 $this->allowed_users[$key] = strtolower($value);
             }
         }
-		$this->enable_oauth = !!$options['enable_oauth'];
+		$this->enable_oauth = true;
 
 		$this->check_server();
 
@@ -98,7 +98,6 @@ class twip{
         }
         else{
             $this->url = $this->parent_api.'/'.$this->request_api;
-			$this->special = (strpos($this->request_api,'friendships/show') === 0);
         }
     }
 
@@ -166,8 +165,8 @@ class twip{
         }
         $curl_opt[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
         $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-		if ( $this->pwd != self::NOBODY )
-			$curl_opt[CURLOPT_USERPWD] = $this->pwd;
+//		if ( $this->pwd != self::NOBODY )
+//			$curl_opt[CURLOPT_USERPWD] = $this->pwd;
         $curl_opt[CURLOPT_HEADERFUNCTION] = create_function('$ch,$str','if(strpos($str,\'Content-Length:\') === false ) { header($str); } return strlen($str);');
         $curl_opt[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1 ;//avoid the "Expect: 100-continue" error
         curl_setopt_array($ch,$curl_opt);

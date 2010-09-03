@@ -28,7 +28,6 @@
     $options['webroot'] = '/twip';    //set this option to '/' if you are using host root
     $options['debug'] = false;
     $options['dolog'] = false;
-    $options['enable_oauth'] = true;
     $options['logfile'] = 'log.txt';
     $options['replace_shorturl'] = true;
     $options['docompress'] = false;
