@@ -11,6 +11,7 @@ class twip{
     public function twip($options = null){
         ob_start();
         $this->parse_variables($options);
+        file_put_contents('log',$this->request_uri."\n",FILE_APPEND);
         if($this->request_uri == 'oauth/access_token'){
             $this->echo_token();
             exit();
@@ -20,9 +21,9 @@ class twip{
             exit();
         }
         $this->do_request();
+        print_r($this);
         $str = ob_get_contents();
-        //file_put_contents('debug',$str);
-        file_put_contents('log',$this->request_uri."\n",FILE_APPEND);
+        file_put_contents('debug',$str);
     }
 
     private function echo_token(){
@@ -66,6 +67,17 @@ class twip{
         }
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
+
+        //Should be a function,which fix client-specific problems.
+        if(strpos($this->request_uri,'trends') === 0){
+            $this->request_uri = '1/'.$this->request_uri;
+        }
+        if((strpos($this->request_uri,'search.') === 0)){
+            $this->request_uri = $this->parent_search_api.$this->request_url;
+        }
+        else{
+            $this->request_uri = $this->parent_api.$this->request_url;
+        }
     }
 
     private function parse_request_uri(){
@@ -75,18 +87,12 @@ class twip{
     }
     private function do_request(){
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
-        if((strpos($this->request_uri,'search.') === 0)){
-            $this->connection->host = 'http://search.twitter.com/';
-        }
-        if(strpos($this->request_uri,'trends') === 0){
-            $this->request_uri = '1/'.$this->request_uri;
-        }
-        if(strpos($this->request_uri,'.xml') !== false){
-            $this->connection->format = 'xml';
-            $this->request_uri = str_replace('.xml','',$this->request_uri);
-        }else{
-            $this->request_uri = str_replace('.json','',$this->request_uri);//the default format is json
-        }
+        //if(strpos($this->request_uri,'.xml') !== false){
+        //    $this->connection->format = 'xml';
+        //    $this->request_uri = str_replace('.xml','',$this->request_uri);
+        //}else{
+        //    $this->request_uri = str_replace('.json','',$this->request_uri);//the default format is json
+        //}
         if($this->method=='POST'){
             echo $this->connection->post($this->request_uri,$_POST);
         }

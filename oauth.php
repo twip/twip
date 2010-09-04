@@ -1,10 +1,9 @@
 <?php
 session_start();
 require('include/twitteroauth.php');
-$KEY = '5fU8EnV9rd1oHs2GyB25g';
-$SECRET = 'k7nHMYp3kvw6bB0p4dlq0KOGshJcRTcblVgCokoEWwk';
+require('oauth_key.php');
 if(!isset($_GET['oauth_verifier'])){
-    $connection = new TwitterOAuth($KEY, $SECRET);
+    $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
     $request_token = $connection->getRequestToken($_SERVER['SCRIPT_URI']);
 
     /* Save request token to session */
@@ -24,7 +23,7 @@ if(!isset($_GET['oauth_verifier'])){
     }
 }
 else{
-    $connection = new TwitterOAuth($KEY, $SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+    $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $connection->getAccessToken($_GET['oauth_verifier']);
     if($connection->http_code == 200){
         for ($i=0; $i<6; $i++) {

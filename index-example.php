@@ -1,8 +1,9 @@
 <?php
 session_start();
 require('twip.php');
-$options['oauth_key'] = '7YyEToJbicfnTFVUNAl3yQ';
-$options['oauth_secret'] = 'cnJu23PWgiPKv4xFtGKNnTO5MqQafnwdd3zGIDtMA';
+require('oauth_key.php');
+$options['oauth_key'] = OAUTH_KEY;
+$options['oauth_secret'] = OAUTH_SECRET;
 $options['base_url'] = 'http://yegle.net/twip/';
 $twip = new twip($options);
 ?>
