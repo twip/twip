@@ -81,6 +81,12 @@ class twip{
         if(strpos($this->request_uri,'trends') === 0){
             $this->request_uri = '1/'.$this->request_uri;
         }
+        if(strpos($this->request_uri,'.xml') !== false){
+            $this->connection->format = 'xml';
+            $this->request_uri = str_replace('.xml','',$this->request_uri);
+        }else{
+            $this->request_uri = str_replace('.json','',$this->request_uri);//the default format is json
+        }
         if($this->method=='POST'){
             echo $this->connection->post($this->request_uri,$_POST);
         }
