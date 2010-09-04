@@ -12,8 +12,11 @@ class twip{
         ob_start();
         $this->parse_variables($options);
         if($this->request_uri == 'oauth/access_token'){
-            $str = 'oauth_token='.$this->access_token['oauth_token']."&oauth_token_secret=".$this->access_token['oauth_token_secret']."&user_id=".$this->access_token['user_id']."&screen_name=".$this->access_token['screen_name'].'&x_auth_expires=0'."\n";
-            echo $str;
+            $this->echo_token();
+            exit();
+        }
+        if($this->request_uri == null){
+            echo 'click <a href="oauth.php">HERE</a> to get your API url';
             exit();
         }
         $this->do_request();
@@ -22,13 +25,25 @@ class twip{
         file_put_contents('log',$this->request_uri."\n",FILE_APPEND);
     }
 
+    private function echo_token(){
+            $str = 'oauth_token='.$this->access_token['oauth_token']."&oauth_token_secret=".$this->access_token['oauth_token_secret']."&user_id=".$this->access_token['user_id']."&screen_name=".$this->access_token['screen_name'].'&x_auth_expires=0'."\n";
+            echo $str;
+    }
+
     private function parse_variables($options){
         //parse options
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
         $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
-        $this->base_url = isset($options['base_url']) ? $options['base_url'] : self::BASE_URL;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
+
+        $this->base_url = isset($options['base_url']) ? trim($options['base_url'],'/').'/' : self::BASE_URL;
+        if(strpos($this->base_url,'https://')===0){
+            $this->base_url = preg_replace('/https:\/\/(.*)/','http://${1}',$this->base_url);
+        }
+        if(strpos($this->base_url,'http://')===FALSE){
+            $this->base_url = 'http://'.$this->base_url;
+        }
 
         //parse $_SERVER
         $this->method = $_SERVER['REQUEST_METHOD'];
@@ -44,19 +59,19 @@ class twip{
         //        $this->request_headers[] = $key.': '.$value;
         //    }
         //}
-        $access_token = file_get_contents('oauth/'.$this->username.'.'.$this->password);
+        $access_token = @file_get_contents('oauth/'.$this->username.'.'.$this->password);
+        if($access_token === FALSE){
+            echo 'You are not allowed to use this API proxy';
+            exit();
+        }
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
     }
 
     private function parse_request_uri(){
         $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
-        $first_slash_pos = strpos($full_request_uri,'/');
-        $this->username = substr($full_request_uri,0,$first_slash_pos);
-        $full_request_uri = substr($full_request_uri,$first_slash_pos+1);
-        $second_slash_pos = strpos($full_request_uri,'/');
-        $this->password = substr($full_request_uri,0,$second_slash_pos);
-        return substr($full_request_uri,$second_slash_pos+1);
+        list($this->username,$this->password,$ret) = explode('/',$full_request_uri,3);
+        return $ret;
     }
     private function do_request(){
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
