@@ -1,7 +1,7 @@
 <?php
 require('include/twitteroauth.php');
 class twip{
-    const PARENT_API = 'http://api.twitter.com/';
+    const PARENT_API = 'https://api.twitter.com/';
     const PARENT_SEARCH_API = 'http://search.twitter.com/';
     const ERR_LOGFILE = 'err.txt';
     const LOGFILE = 'log.txt';
@@ -17,9 +17,11 @@ class twip{
         else if($this->mode=='o'){
             $this->override_mode();
         }
-        $str = ob_get_contents();
-        file_put_contents('debug',$str);
-        file_put_contents('log',$this->request_uri."\n",FILE_APPEND);
+        ob_flush();
+        print_r($this);
+        file_put_contents('debug',ob_get_contents());
+        ob_clean();
+        file_put_contents('log',$this->method.' '.$this->request_uri."\n",FILE_APPEND);
     }
 
     private function echo_token(){
@@ -46,7 +48,7 @@ class twip{
         $this->method = $_SERVER['REQUEST_METHOD'];
 
 
-        $this->request_uri = $this->parse_request_uri();
+        $this->parse_request_uri();
     }
 
     private function override_mode(){
@@ -57,45 +59,79 @@ class twip{
         }
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
-
-        $this->url_fixer();
-    }
-
-    private function url_fixer(){
-        if($_GET['source']=='Twitter for iPhone'){
-            if(strpos($this->request_uri,'trends') === 0){
-                $this->request_uri = '1/'.$this->request_uri;
-            }
-        }
-        if((strpos($this->request_uri,'search.') === 0)){
-            $this->request_uri = $this->parent_search_api.$this->request_url;
-        }
-        else{
-            $this->request_uri = $this->parent_api.$this->request_url;
-        }
-    }
-
-
-    private function parse_request_uri(){
-        $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
-        list($this->mode,$this->username,$this->password,$ret) = explode('/',$full_request_uri,4);
-        return $ret;
-    }
-    private function do_request(){
         if($this->request_uri == 'oauth/access_token'){
             $this->echo_token();
             exit();
         }
         if($this->request_uri == null){
-            echo 'click <a href="oauth.php">HERE</a> to get your API url';
+            echo 'click <a href="'.$this->base_url.'oauth.php">HERE</a> to get your API url';
             exit();
         }
+        $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
         if($this->method=='POST'){
             echo $this->connection->post($this->request_uri,$_POST);
         }
         else{
             echo $this->connection->get($this->request_uri);
+        }
+    }
+
+    private function transparent_mode(){
+        $this->uri_fixer();
+        $ch = curl_init($this->request_uri);
+        $this->request_headers = OAuthUtil::get_headers();
+        if($this->api_type == 'search'){
+            $this->request_headers['Host'] = 'search.twitter.com';
+        }
+        else{
+            $this->request_headers['Host'] = 'twitter.com';
+        }
+        $forwarded_headers = array(
+            'Host',
+            'User-Agent',
+            'Authorization',
+            );
+        foreach($forwarded_headers as $header){
+            $this->forwarded_headers[] = $header.': '.$this->request_headers[$header];
+        }
+        curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
+        if($this->method == 'POST'){
+            curl_setopt($ch,CURLOPT_POST,TRUE);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,@file_get_contents('php://input'));
+        }
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+        $ret = curl_exec($ch);
+        echo $ret;
+    }
+
+    private function uri_fixer(){
+        if($_GET['source']=='Twitter for iPhone'){
+            if(strpos($this->request_uri,'trends') === 0){
+                $this->request_uri = '1/'.$this->request_uri;
+            }
+        }
+        if($this->api_type == 'search'){
+            $this->request_uri = $this->parent_search_api.$this->request_uri;
+        }
+        else{
+            $this->request_uri = $this->parent_api.$this->request_uri;
+        }
+    }
+
+
+    private function parse_request_uri(){
+        $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
+        if(strpos($full_request_uri,'o/')===0){
+            list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
+            $this->mode == 'o';
+        }
+        elseif(strpos($full_request_uri,'t/')===0){
+            list($this->mode,$this->request_uri) = explode('/',$full_request_uri,2);
+            $this->mode == 't';
+        }
+        if((strpos($this->request_uri,'search.') === 0)){
+            $this->api_type = 'search';
         }
     }
 

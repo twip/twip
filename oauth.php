@@ -35,7 +35,7 @@ else{
         }
         file_put_contents('oauth/'.$access_token['screen_name'].'.'.$secret_string,serialize($access_token));
         echo 'Your API URL is:'."\n";
-        echo preg_replace('/(.*)\/oauth.php/','${1}',$_SERVER['SCRIPT_URI']).'/'.$access_token['screen_name'].'/'.$secret_string;
+        echo preg_replace('/(.*)\/oauth.php/','${1}',$_SERVER['SCRIPT_URI']).'/o/'.$access_token['screen_name'].'/'.$secret_string;
     }
     else {
         echo 'error';
