@@ -39,7 +39,7 @@ else{
         echo preg_replace('/(.*)\/oauth.php/','${1}',$_SERVER['SCRIPT_URI']).'/o/'.$access_token['screen_name'].'/'.$secret_string;
     }
     else {
-        echo 'error';
+        echo 'error '.$connection->http_code;
     }
 
 

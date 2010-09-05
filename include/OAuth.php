@@ -803,6 +803,14 @@ class OAuthUtil {
           );
           $out[$key] = $value;
         }
+        if (substr($key, 0, 14) == "REDIRECT_HTTP_") {
+          $key = str_replace(
+            " ",
+            "-",
+            ucwords(strtolower(str_replace("_", " ", substr($key, 14))))
+          );
+          $out[$key] = $value;
+        }
       }
     }
     return $out;
