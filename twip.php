@@ -85,7 +85,7 @@ class twip{
             $this->request_headers['Host'] = 'search.twitter.com';
         }
         else{
-            $this->request_headers['Host'] = 'twitter.com';
+            $this->request_headers['Host'] = 'api.twitter.com';
         }
         $forwarded_headers = array(
             'Host',
