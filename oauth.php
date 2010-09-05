@@ -2,7 +2,8 @@
 session_start();
 require('include/twitteroauth.php');
 require('oauth_key.php');
-if(!isset($_GET['oauth_verifier'])){
+//fixme: Why some website redirect back with oauth_verifier and some have oauth_token and some have both?! WTF!
+if(!isset($_GET['oauth_verifier']) && !isset($_GET['oauth_token'])){
     $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
     $request_token = $connection->getRequestToken($_SERVER['SCRIPT_URI']);
 
