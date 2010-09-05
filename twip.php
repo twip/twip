@@ -17,9 +17,10 @@ class twip{
         else if($this->mode=='o'){
             $this->override_mode();
         }
+        $str = ob_get_contents();
         ob_flush();
         print_r($this);
-        file_put_contents('debug',ob_get_contents());
+        file_put_contents('debug',ob_get_contents().$str);
         ob_clean();
         file_put_contents('log',$this->method.' '.$this->request_uri."\n",FILE_APPEND);
     }
@@ -91,17 +92,25 @@ class twip{
             'Host',
             'User-Agent',
             'Authorization',
+            'Content-Type'
             );
         foreach($forwarded_headers as $header){
-            $this->forwarded_headers[] = $header.': '.$this->request_headers[$header];
+            if(isset($this->request_headers[$header])){
+                $this->forwarded_headers[] = $header.': '.$this->request_headers[$header];
+            }
         }
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
         if($this->method == 'POST'){
             curl_setopt($ch,CURLOPT_POST,TRUE);
             curl_setopt($ch,CURLOPT_POSTFIELDS,@file_get_contents('php://input'));
+            $this->post_fields = @file_get_contents('php://input');
         }
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $ret = curl_exec($ch);
+        //fixme:redirect request back to twip,this is nasty and insecure...
+        if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==NULL){
+            $ret = str_replace('<form action="https://api.twitter.com/oauth/authorize"','<form action="'.$this->base_url.'t/oauth/authorize"',$ret);
+        }
         echo $ret;
     }
 
