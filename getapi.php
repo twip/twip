@@ -17,7 +17,7 @@ require('config.php');
 		<h3>你的 API Proxy 地址</h3>
 		
 		<p>
-            <input type="text" value="<?php echo isset($_GET['api']) ? $_GET['api'] : BASE_URL.'t/'; ?>" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
+            <input type="text" value="<?php echo isset($_GET['api']) ? $_GET['api'] : BASE_URL.'t/'; ?>" readonly="readonly" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
 		</p>
 		
 		<p>
@@ -28,7 +28,7 @@ require('config.php');
 if(isset($_GET['api'])){
 ?>
 		<p> <!--O mode only-->
-			注意： O 模式下每次提交认证都会生成新的随机 API 地址！
+			注意： O 模式下每次提交认证都会生成新的随机地址！
 		</p>
 <?php
 }
