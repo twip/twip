@@ -119,7 +119,7 @@ class twip{
     }
 
     private function uri_fixer(){
-        if($_SERVER['HTTP_X_TWITTER_CLIENT']==='Twitter-iPhone'){
+        if(preg_match('/^Twitter\/[.0-9]* CFNetwork\/[.0-9]* Darwin\/[.0-9]*$/',$_SERVER['HTTP_USER_AGENT'])){
             if(strpos($this->request_uri,'trends') === 0){
                 $this->request_uri = '1/'.$this->request_uri;
             }
