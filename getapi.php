@@ -17,7 +17,7 @@ require('config.php');
 		<h3>你的 API Proxy 地址</h3>
 		
 		<p>
-            <input type="text" value="<?php echo isset($_GET['api']) ? $_GET['api'] : BASE_URL.'t/'; ?>" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
+            <input readonly="readonly" type="text" value="<?php echo isset($_GET['api']) ? $_GET['api'] : BASE_URL.'t/'; ?>" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
 		</p>
 		
 		<p>
