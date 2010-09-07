@@ -19,9 +19,12 @@ class twip{
         }
         $str = ob_get_contents();
         ob_flush();
-        print_r($this);
-        file_put_contents('debug',ob_get_contents().$str);
-        ob_clean();
+        if($this->debug){
+            print_r($this);
+            print_r($_SERVER);
+            file_put_contents('debug',ob_get_contents().$str);
+            ob_clean();
+        }
         file_put_contents('log',$this->method.' '.$this->request_uri."\n",FILE_APPEND);
     }
 
@@ -34,6 +37,7 @@ class twip{
         //parse options
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
         $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
+        $this->debug = isset($options['debug']) ? !!$options['debug'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
 
@@ -115,7 +119,7 @@ class twip{
     }
 
     private function uri_fixer(){
-        if($_GET['source']=='Twitter for iPhone'){
+        if($_SERVER['HTTP_X_TWITTER_CLIENT']==='Twitter-iPhone'){
             if(strpos($this->request_uri,'trends') === 0){
                 $this->request_uri = '1/'.$this->request_uri;
             }
