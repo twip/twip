@@ -9,16 +9,23 @@ class twip{
     const BASE_URL = 'http://yegle.net/twip/';
 
     public function twip($options = null){
-        ob_start();
         $this->parse_variables($options);
+
+        ob_start();
+        $compressed = $this->compress && Extension_Loaded('zlib') && ob_start("ob_gzhandler");
+        
         if($this->mode=='t'){
             $this->transparent_mode();
         }
         else if($this->mode=='o'){
             $this->override_mode();
         }
+
         $str = ob_get_contents();
+        if ($compressed) ob_end_flush();
+        header('Content-Length: '.ob_get_length());
         ob_flush();
+
         if($this->debug){
             print_r($this);
             print_r($_SERVER);
@@ -38,6 +45,7 @@ class twip{
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
         $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
         $this->debug = isset($options['debug']) ? !!$options['debug'] : FALSE;
+        $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
 
