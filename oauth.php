@@ -32,8 +32,11 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
     $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $connection->getAccessToken($_GET['oauth_verifier']);
     if($connection->http_code == 200){
-        foreach(glob('oauth/'.$access_token['screen_name'].'.*') as $file){
-            unlink($file);
+        $old_tokens = glob('oauth/'.$access_token['screen_name'].'.*');
+        if(!empty($old_tokens)){
+            foreach($old_tokens as $file){
+                unlink($file);
+            }
         }
         if($_SESSION['my_suffix']==''){
             for ($i=0; $i<6; $i++) {
