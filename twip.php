@@ -112,6 +112,7 @@ class twip{
             }
         }
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
+        curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
         if($this->method == 'POST'){
             curl_setopt($ch,CURLOPT_POST,TRUE);
             curl_setopt($ch,CURLOPT_POSTFIELDS,@file_get_contents('php://input'));
@@ -160,11 +161,10 @@ class twip{
     }
 
     private function headerfunction($ch,$str){
-        //if(strpos($str,'Content-Length:')===NULL){
-        //}
-        //$newstr = str_replace('HTTP/1.1 401 Unauthorized','HTTP/1.1 200 OK',$str);
-        header($newstr);
-        $this->response_headers[] = $newstr;
+        if(strpos($str,'Content-Length:')!==NULL){
+            header($str);
+        }
+        $this->response_headers[] = $str;
         return strlen($str);
     }
 }
