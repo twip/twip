@@ -107,7 +107,8 @@ class twip{
             'Host',
             'User-Agent',
             'Authorization',
-            'Content-Type'
+            'Content-Type',
+            'X-Forwarded-For',
             );
         foreach($forwarded_headers as $header){
             if(isset($this->request_headers[$header])){
