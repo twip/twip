@@ -20,6 +20,9 @@ class twip{
         else if($this->mode=='o'){
             $this->override_mode();
         }
+        else{
+            header('HTTP/1.0 400 Bad Request');
+        }
 
         $str = ob_get_contents();
         if ($compressed) ob_end_flush();
