@@ -2,8 +2,8 @@
 session_start();
 require('include/twitteroauth.php');
 require('config.php');
-if(isset($_POST['my_suffix'])){
-    $_SESSION['my_suffix'] = preg_replace('/[^a-zA-Z0-9]/','',$_POST['my_suffix']);
+if(isset($_POST['url_suffix'])){
+    $_SESSION['url_suffix'] = preg_replace('/[^a-zA-Z0-9]/','',$_POST['url_suffix']);
 }
 if(!empty($_POST)){
     if(!isset($_GET['type']) || $_GET['type']==1 || $_GET['type']==2){
@@ -45,14 +45,14 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
                 unlink($file);
             }
         }
-        if($_SESSION['my_suffix']==''){
+        if($_SESSION['url_suffix']==''){
             for ($i=0; $i<6; $i++) {
                 $d=rand(1,30)%2;
                 $suffix_string .= $d ? chr(rand(65,90)) : chr(rand(48,57));
             } 
         }
         else{
-            $suffix_string = $_SESSION['my_suffix'];
+            $suffix_string = $_SESSION['url_suffix'];
         }
         file_put_contents('oauth/'.$access_token['screen_name'].'.'.$suffix_string,serialize($access_token));
         $url = BASE_URL.'o/'.$access_token['screen_name'].'/'.$suffix_string;
@@ -95,7 +95,7 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 			<p>
 				<label for="url_suffix">自定义 URL 地址</label>
                 <input class="half" type="text" value="<?php echo BASE_URL.'o/';?>" id="base_url" disabled autocomplete="off" />
-				<input class="half" type="text" value="" id="url_suffix" autocomplete="off" name="my_suffix" />
+				<input class="half" type="text" value="" id="url_suffix" autocomplete="off" name="url_suffix" />
 			</p>
 			
 			<input type="submit" value="提交认证" class="button">
@@ -128,7 +128,7 @@ else{
 			<p>
 				<label for="url_suffix">1. 自定义 URL 地址</label>
                 <input class="half" type="text" value="<?php echo BASE_URL.'o/';?>" id="base_url" disabled autocomplete="off" />
-				<input class="half" type="text" value="" id="url_suffix" name="url_siffix" autocomplete="off" />
+				<input class="half" type="text" value="" id="url_suffix" name="url_suffix" autocomplete="off" />
 			</p>
 			
 			<p>
