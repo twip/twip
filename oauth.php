@@ -6,7 +6,7 @@ if(isset($_POST['my_suffix'])){
     $_SESSION['my_suffix'] = preg_replace('/[^a-zA-Z0-9]/','',$_POST['my_suffix']);
 }
 if(!empty($_POST)){
-    if(!isset($_GET['type']) || $_GET['type']==1){
+    if(!isset($_GET['type']) || $_GET['type']==1 || $_GET['type']==2){
         $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
         $request_token = $connection->getRequestToken(BASE_URL.'oauth.php');
 
@@ -18,7 +18,14 @@ if(!empty($_POST)){
           case 200:
             /* Build authorize URL */
             $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
-            header('Location: ' . $url); 
+            if ($_GET['type']==1) {
+                header('Location: ' . $url); 
+            } else {
+                // encrypt user and password for decrypt.
+                $encUser = base64_encode($_POST['username']);
+                $encPass = base64_encode($_POST['password']);
+                header('Location: oauth_proxy.php?u=' . $encUser . '&p=' . $encPass . '&g=' . urlencode($url));
+            }
             break;
           default:
             echo 'Could not connect to Twitter. Refresh the page or try again later.';
@@ -80,7 +87,7 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 		
 			<ul class="clearfix">
 				<li><a class="active" href="oauth.php?type=1">OAuth 验证</a></li>
-				<li><a href="oauth.php?type=2">模拟 OAuth 验证</a></li>
+				<li><a href="oauth.php?type=2">模拟 OAuth 验证(beta)</a></li>
 			</ul>
 			
 			<hr class="clear" />
@@ -113,7 +120,7 @@ else{
 		
 			<ul class="clearfix">
 				<li><a href="oauth.php?type=1">OAuth 验证</a></li>
-				<li><a class="active" href="oauth.php?type=2">模拟 OAuth 验证</a></li>
+				<li><a class="active" href="oauth.php?type=2">模拟 OAuth 验证(beta)</a></li>
 			</ul>
 			
 			<hr class="clear" />
@@ -121,20 +128,20 @@ else{
 			<p>
 				<label for="url_suffix">1. 自定义 URL 地址</label>
                 <input class="half" type="text" value="<?php echo BASE_URL.'o/';?>" id="base_url" disabled autocomplete="off" />
-				<input class="half" type="text" value="" id="url_suffix" autocomplete="off" />
+				<input class="half" type="text" value="" id="url_suffix" name="url_siffix" autocomplete="off" />
 			</p>
 			
 			<p>
 				<label for="username">2. 你的 Twitter 用户名</label>
-				<input type="text" value="" id="username" autocomplete="off" />
+				<input type="text" value="" id="username" name="username" autocomplete="off" />
 			</p>
 			
 			<p>
 				<label for="password">3. 你的 Twitter 密码</label>
-				<input type="password" value="" id="password" autocomplete="off" />
+				<input type="password" value="" id="password" name="password" autocomplete="off" />
 			</p>
 			
-			<input type="submit" value="该功能尚未完成" class="button" disabled>
+			<input type="submit" value="Run Beta Test" class="button" />
 		
 		</form>
 		
