@@ -1,0 +1,4 @@
+For NGINX users, please use the following rules:
+if (!-e $request_filename){rewrite ^/(.*)$ /index.php last;}
+(Provided by @imsoff)
+
