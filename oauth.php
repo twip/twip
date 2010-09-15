@@ -54,12 +54,15 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
         else{
             $suffix_string = $_SESSION['url_suffix'];
         }
-        file_put_contents('oauth/'.$access_token['screen_name'].'.'.$suffix_string,serialize($access_token));
+        if(file_put_contents('oauth/'.$access_token['screen_name'].'.'.$suffix_string,serialize($access_token)) === FALSE){
+            echo 'Error failed to write access_token file.Please check if you have write permission to oauth/ directory'."\n";
+            exit();
+        }
         $url = BASE_URL.'o/'.$access_token['screen_name'].'/'.$suffix_string;
         header('Location: getapi.php?api='.$url);
     }
     else {
-        echo 'error '.$connection->http_code."\n";
+        echo 'Error '.$connection->http_code."\n";
         print_r($connection);
     }
     exit();

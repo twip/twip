@@ -127,6 +127,7 @@ class twip{
         //fixme:redirect request back to twip,this is nasty and insecure...
         if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==NULL){
             $ret = str_replace('<form action="https://api.twitter.com/oauth/authorize"','<form action="'.$this->base_url.'t/oauth/authorize"',$ret);
+            $ret = str_replace('<div id="signin_form">','<h1><strong style="color:red">Warning!This page is proxied by twip and therefore you may leak your password to API proxy owner!</strong></h1><div id="signin_form">',$ret);
         }
         echo $ret;
     }
