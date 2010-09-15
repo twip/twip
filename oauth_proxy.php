@@ -51,7 +51,7 @@ $login_obj = str_get_html($login_result);
 $login_error = $login_obj->find('p[class=oauth-errors]', 0)->innertext;
 if(strlen($login_error) > 8) {
   /* This is a workaround coz oauth_errors can be "&nbsp;" */
-  echo "There must be something wrong with your user account and password combination.\n";
+  echo "There must be something wrong with your user account and password combination.<br/>";
   echo "Twitter said: <b>$login_error</b>\n";
   die(-1);
 }

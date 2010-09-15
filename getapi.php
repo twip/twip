@@ -19,6 +19,14 @@ require('config.php');
 		<p>
             <input readonly="readonly" type="text" value="<?php echo isset($_GET['api']) ? $_GET['api'] : BASE_URL.'t/'; ?>" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
 		</p>
+
+        <?php if(isset($_GET['api'])) { ?>
+        <h3>你的 Image Proxy 地址</h3>
+
+        <p>
+            <input readonly="readonly" type="text" value="<?php echo str_replace('/o/','/i/',$_GET['api']); ?>" onmouseover="this.focus()" onfocus="this.select()" autocomplete="off" />
+        </p>
+        <?php } ?>
 		
 		<p>
 			友情提醒：请不要随意泄漏你的 API 地址。Twip 默认会保护你的 API 地址不被搜索引擎爬取。

@@ -1,5 +1,6 @@
 <?php
 require('include/twitteroauth.php');
+require('image_proxy.php');
 class twip{
     const PARENT_API = 'https://api.twitter.com/';
     const PARENT_SEARCH_API = 'http://search.twitter.com/';
@@ -19,6 +20,9 @@ class twip{
         }
         else if($this->mode=='o'){
             $this->override_mode();
+        }
+        else if($this->mode=='i'){
+            $this->override_mode(true);
         }
         else{
             header('HTTP/1.0 400 Bad Request');
@@ -67,7 +71,7 @@ class twip{
         $this->parse_request_uri();
     }
 
-    private function override_mode(){
+    private function override_mode($imageproxy = FALSE){
         $access_token = @file_get_contents('oauth/'.$this->username.'.'.$this->password);
         if($access_token === FALSE){
             echo 'You are not allowed to use this API proxy';
@@ -75,13 +79,24 @@ class twip{
         }
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
+
         if($this->request_uri == 'oauth/access_token'){
             $this->echo_token();
-            exit();
+            return;
         }
+
+        if($imageproxy){
+            if($this->method=='POST'){
+                echo imageUpload($this->oauth_key, $this->oauth_secret, $this->access_token);
+            }else{
+                echo 'The image proxy needs POST method.';
+            }
+            return;
+        }
+
         if($this->request_uri == null){
             echo 'click <a href="'.$this->base_url.'oauth.php">HERE</a> to get your API url';
-            exit();
+            return;
         }
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
@@ -159,6 +174,10 @@ class twip{
         elseif(strpos($full_request_uri,'t/')===0){
             list($this->mode,$this->request_uri) = explode('/',$full_request_uri,2);
             $this->mode == 't';
+        }
+        elseif(strpos($full_request_uri,'i/')===0){
+            list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
+            $this->mode == 'i';
         }
         if((strpos($this->request_uri,'search.') === 0)){
             $this->api_type = 'search';
