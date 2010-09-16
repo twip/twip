@@ -18,7 +18,7 @@ if(!empty($_POST)){
           case 200:
             /* Build authorize URL */
             $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
-            if ($_GET['type']==1) {
+            if ($_GET['type']==1 || !isset($_GET['type'])) {
                 header('Location: ' . $url); 
             } else {
                 // encrypt user and password for decrypt.
