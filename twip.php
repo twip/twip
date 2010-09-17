@@ -154,7 +154,7 @@ class twip{
             }
         }
         if( substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
-            $this->request_uri = substr($this->request_uri,4);//remove "api/"
+            $this->request_uri = substr($this->request_uri,strlen('1/api/'));//remove "1/api/"
         }
         if($this->api_type == 'search'){
             $this->request_uri = $this->parent_search_api.$this->request_uri;
