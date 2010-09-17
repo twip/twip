@@ -8,6 +8,7 @@ class twip{
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
     const BASE_URL = 'http://yegle.net/twip/';
+    const API_VERSION = '1';
 
     public function twip($options = null){
         $this->parse_variables($options);
@@ -51,10 +52,14 @@ class twip{
         //parse options
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
         $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
+        $this->api_version = isset($options['api_version']) ? $options['api_version'] : self::API_VERSION;
         $this->debug = isset($options['debug']) ? !!$options['debug'] : FALSE;
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
+
+        if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
+        if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
 
         $this->base_url = isset($options['base_url']) ? trim($options['base_url'],'/').'/' : self::BASE_URL;
         if(strpos($this->base_url,'https://')===0){
@@ -148,19 +153,18 @@ class twip{
     }
 
     private function uri_fixer(){
-        if(preg_match('/^Twitter\/[^ ]+ CFNetwork\/[^ ]+ Darwin\/[^ ]+$/',$_SERVER['HTTP_USER_AGENT'])){
-            if(strpos($this->request_uri,'trends') === 0){
-                $this->request_uri = '1/'.$this->request_uri;
-            }
-        }
         if( substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
-            $this->request_uri = substr($this->request_uri,strlen('1/api/'));//remove "1/api/"
+            $this->request_uri = str_replace('api/','',$this->request_uri);//remove "api/"
         }
         if($this->api_type == 'search'){
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
-            $this->request_uri = $this->parent_api.$this->request_uri;
+            if(preg_match('/^[0-9]\/(.*)/',$this->request_uri)){
+                $this->request_uri = $this->parent_api.$this->request_uri;
+            }else{
+                $this->request_uri = $this->parent_api.$this->api_version.'/'.$this->request_uri;
+            }
         }
     }
 
