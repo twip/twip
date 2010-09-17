@@ -32,11 +32,11 @@ function imageUpload($oauth_key, $oauth_secret, $token) {
     curl_close($ch);
 
     if ($response_info['http_code'] == 200) {
-        $data = json_decode($response);
-        if (empty($data)) return '';
         if(preg_match('/^Twitter\/[^ ]+ CFNetwork\/[^ ]+ Darwin\/[^ ]+$/',$_SERVER['HTTP_USER_AGENT'])){
-            return '<mediaurl>'.$data->{'url'}.'</mediaurl>';
+            $data = json_decode($response);
+            return empty($data) ? '' : '<mediaurl>'.$data->{'url'}.'</mediaurl>';
         }else{
+            header('Content-Type: application/json');
             return $response;
         }
     } else {

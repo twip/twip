@@ -2,7 +2,7 @@
 require('include/twitteroauth.php');
 require('image_proxy.php');
 class twip{
-    const PARENT_API = 'https://api.twitter.com/';
+    const PARENT_API = 'https://api.twitter.com/1/';
     const PARENT_SEARCH_API = 'http://search.twitter.com/';
     const ERR_LOGFILE = 'err.txt';
     const LOGFILE = 'log.txt';
