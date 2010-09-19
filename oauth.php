@@ -19,11 +19,13 @@ if(!empty($_POST)){
             /* Build authorize URL */
             $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
             if ($_GET['type']==1 || !isset($_GET['type'])) {
+                header('HTTP/1.1 302 Found');
                 header('Location: ' . $url); 
             } else {
                 // encrypt user and password for decrypt.
                 $encUser = base64_encode($_POST['username']);
                 $encPass = base64_encode($_POST['password']);
+                header('HTTP/1.1 302 Found');
                 header('Location: oauth_proxy.php?u=' . $encUser . '&p=' . $encPass . '&g=' . urlencode($url));
             }
             break;
@@ -59,6 +61,7 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
             exit();
         }
         $url = BASE_URL.'o/'.$access_token['screen_name'].'/'.$suffix_string;
+        header('HTTP/1.1 302 Found');
         header('Location: getapi.php?api='.$url);
     }
     else {
