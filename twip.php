@@ -79,6 +79,8 @@ class twip{
     private function override_mode($imageproxy = FALSE){
         $access_token = @file_get_contents('oauth/'.$this->username.'.'.$this->password);
         if($access_token === FALSE){
+            header('HTTP/1.1 401 Unauthorized');
+            header('WWW-Authenticate: Basic realm="Twip4 Override Mode"');
             echo 'You are not allowed to use this API proxy';
             exit();
         }
