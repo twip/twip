@@ -1,11 +1,11 @@
 <?php
 require('twip.php');
 require('config.php');
-$options['oauth_key'] = OAUTH_KEY;
-$options['oauth_secret'] = OAUTH_SECRET;
-$options['base_url'] = BASE_URL;
-$options['debug'] = DEBUG;
-$options['compress'] = COMPRESS;
-$options['api_version'] = API_VERSION;
+$options['oauth_key'] = constant('OAUTH_KEY');
+$options['oauth_secret'] = constant('OAUTH_SECRET');
+$options['base_url'] = constant('BASE_URL');
+$options['debug'] = constant('DEBUG');
+$options['compress'] = constant('COMPRESS');
+$options['api_version'] = constant('API_VERSION');
 $twip = new twip($options);
 ?>
