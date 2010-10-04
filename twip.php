@@ -185,6 +185,7 @@ class twip{
             list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
             $this->mode == 'i';
         }
+        $this->request_uri = preg_replace('/\/+/','/',$this->request_uri);
         if((strpos($this->request_uri,'search.') === 0)){
             $this->api_type = 'search';
         }
