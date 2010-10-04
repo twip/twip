@@ -40,7 +40,9 @@ class twip{
             file_put_contents('debug',ob_get_contents().$str);
             ob_clean();
         }
-        file_put_contents('log',$this->method.' '.$this->request_uri."\n",FILE_APPEND);
+        if($this->dolog){
+            file_put_contents('log',$this->method.' '.$this->request_uri."\n",FILE_APPEND);
+        }
     }
 
     private function echo_token(){
@@ -54,6 +56,7 @@ class twip{
         $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
         $this->api_version = isset($options['api_version']) ? $options['api_version'] : self::API_VERSION;
         $this->debug = isset($options['debug']) ? !!$options['debug'] : FALSE;
+        $this->dolog = isset($options['dolog']) ? !!$options['dolog'] : FALSE;
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
@@ -162,7 +165,7 @@ class twip{
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
-            if(preg_match('/^[0-9]\/(.*)/',$this->request_uri)){
+            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9]\/(.*)/',$this->request_uri)){
                 $this->request_uri = $this->parent_api.$this->request_uri;
             }else{
                 $this->request_uri = $this->parent_api.$this->api_version.'/'.$this->request_uri;
@@ -170,20 +173,19 @@ class twip{
         }
     }
 
-
     private function parse_request_uri(){
         $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
         if(strpos($full_request_uri,'o/')===0){
             list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
-            $this->mode == 'o';
+            $this->mode = 'o';
         }
         elseif(strpos($full_request_uri,'t/')===0){
             list($this->mode,$this->request_uri) = explode('/',$full_request_uri,2);
-            $this->mode == 't';
+            $this->mode = 't';
         }
         elseif(strpos($full_request_uri,'i/')===0){
             list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
-            $this->mode == 'i';
+            $this->mode = 'i';
         }
         $this->request_uri = preg_replace('/\/+/','/',$this->request_uri);
         if((strpos($this->request_uri,'search.') === 0)){
