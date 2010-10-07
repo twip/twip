@@ -134,13 +134,13 @@ class twip{
             'Authorization',
             'Content-Type',
             'X-Forwarded-For',
+            'Expect',
             );
         foreach($forwarded_headers as $header){
             if(isset($this->request_headers[$header])){
                 $this->forwarded_headers[] = $header.': '.$this->request_headers[$header];
             }
         }
-        $this->forwarded_headers[] = 'Expect:';
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
         curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
         if($this->method == 'POST'){
