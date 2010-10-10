@@ -94,5 +94,6 @@ if($oauth_approve_form) {
 */
   $targetURL = $login_obj->find('div[class=message-content] a', 0)->href;
   header('HTTP/1.1 302 Found');
+  header('Status: 302 Found');
   header("Location: $targetURL");
 ?>
