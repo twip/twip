@@ -33,7 +33,10 @@ if(!empty($_POST)){
             break;
           default:
             echo 'Could not connect to Twitter. Refresh the page or try again later.';
-            echo "\n Error code:".$connection->http_code;
+            echo "\n Error code:".$connection->http_code.".";
+            if($connection->http_code==0){
+                echo "Don't report bugs or issues if you got this error code.Please try a paid virtual host.";
+            }
             break;
         }
     }
