@@ -99,7 +99,7 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 		
 			<ul class="clearfix">
 				<li><a class="active" href="oauth.php?type=1">OAuth 验证</a></li>
-				<li><a href="oauth.php?type=2">模拟 OAuth 验证(beta)</a></li>
+				<li><a href="oauth.php?type=2">模拟 OAuth 验证</a></li>
 			</ul>
 			
 			<hr class="clear" />
@@ -132,7 +132,7 @@ else{
 		
 			<ul class="clearfix">
 				<li><a href="oauth.php?type=1">OAuth 验证</a></li>
-				<li><a class="active" href="oauth.php?type=2">模拟 OAuth 验证(beta)</a></li>
+				<li><a class="active" href="oauth.php?type=2">模拟 OAuth 验证</a></li>
 			</ul>
 			
 			<hr class="clear" />
@@ -153,7 +153,7 @@ else{
 				<input type="password" value="" id="password" name="password" autocomplete="off" />
 			</p>
 			
-			<input type="submit" value="Run Beta Test" class="button" />
+			<input type="submit" value="提交认证" class="button" />
 		
 		</form>
 		
