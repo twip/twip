@@ -4,9 +4,9 @@
  */
 include('include/simple_html_dom.php'); 
 /* Credit: */
-$oAuthEntryPage = urldecode($_GET['g']);
-$twtitterAccount = base64_decode($_GET['u']);
-$twitterPassword = base64_decode($_GET['p']);
+$oAuthEntryPage = isset($_POST['g']) ? $_POST['g'] : base64_decode($_GET['g']);
+$twitterAccount = isset($_POST['u']) ? $_POST['u'] : base64_decode($_GET['u']);
+$twitterPassword = isset($_POST['p']) ? $_POST['p'] : base64_decode($_GET['p']);
 
 /* form: https://twitter.com/oauth/authenticate
   authenticity_token -> 抓
@@ -32,7 +32,7 @@ $authenticity_token = $page_auth->find('input[name=authenticity_token]', 0)->att
 $login_fields = Array(
     'oauth_token' => urlencode($oauth_token),
     'authenticity_token' => urlencode($authenticity_token),
-    'session[username_or_email]' => urlencode($twtitterAccount),
+    'session[username_or_email]' => urlencode($twitterAccount),
     'session[password]' => urlencode($twitterPassword)
 );
 foreach($login_fields as $key=>$value) {
