@@ -4,7 +4,7 @@
  */
 include('include/simple_html_dom.php'); 
 /* Credit: */
-$oAuthEntryPage = isset($_POST['g']) ? $_POST['g'] : base64_decode($_GET['g']);
+$oAuthEntryPage = isset($_POST['g']) ? $_POST['g'] : urldecode($_GET['g']);
 $twitterAccount = isset($_POST['u']) ? $_POST['u'] : base64_decode($_GET['u']);
 $twitterPassword = isset($_POST['p']) ? $_POST['p'] : base64_decode($_GET['p']);
 
