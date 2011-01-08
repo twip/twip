@@ -27,6 +27,10 @@ $twitterPassword = isset($_POST['p']) ? $_POST['p'] : base64_decode($_GET['p']);
 		}
 */
 $page_auth = file_get_html($oAuthEntryPage);
+if($page_auth === FALSE){
+    echo "Cannot load http resource using file_get_contents";
+    exit();
+}
 $oauth_token = $page_auth->find('input[name=oauth_token]', 0)->attr['value'];
 $authenticity_token = $page_auth->find('input[name=authenticity_token]', 0)->attr['value'];
 $login_fields = Array(
