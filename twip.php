@@ -159,10 +159,10 @@ class twip{
     }
 
     private function uri_fixer(){
-        if( substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
+        if( isset($_SERVER['HTTP_USER_AGENT']) && substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
             $this->request_uri = str_replace('api/','',$this->request_uri);//remove "api/"
         }
-        if($this->api_type == 'search'){
+        if(isset($this->api_type) && $this->api_type == 'search'){
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
