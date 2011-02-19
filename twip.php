@@ -61,6 +61,8 @@ class twip{
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
 
+        $this->parameters = $this->get_parameters();
+
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
         if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
 
@@ -110,11 +112,16 @@ class twip{
         }
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
-        if($this->method=='POST'){
-            echo $this->connection->post($this->request_uri,$_POST);
-        }
-        else{
-            echo $this->connection->get($this->request_uri);
+        switch($this->method){
+            case 'POST':
+                echo $this->connection->post($this->request_uri,$this->parameters);
+                break;
+            case 'DELETE':
+                echo $this->connection->delete($this->request_uri,$this->parameters);
+                break;
+            default:
+                echo $this->connection->get($this->request_uri);
+                break;
         }
     }
 
@@ -143,10 +150,9 @@ class twip{
         }
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
         curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
-        if($this->method == 'POST'){
-            curl_setopt($ch,CURLOPT_POST,TRUE);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,@file_get_contents('php://input'));
-            $this->post_fields = @file_get_contents('php://input');
+        if($this->method != 'GET'){
+            curl_setopt($ch,CURLOPT_CUSTOMREQUEST,$this->method);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$this->parameters);
         }
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $ret = curl_exec($ch);
@@ -200,6 +206,13 @@ class twip{
         }
         $this->response_headers[] = $str;
         return strlen($str);
+    }
+
+    private function get_parameters(){
+        $data = file_get_contents('php://input');
+        $ret = array();
+        parse_str($data,$ret);
+        return $ret;
     }
 }
 ?>
