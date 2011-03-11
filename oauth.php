@@ -46,7 +46,7 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
     $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $connection->getAccessToken($_GET['oauth_verifier']);
     if($connection->http_code == 200){
-        $old_tokens = glob('oauth/'.$access_token['screen_name'].'.*');
+        $old_tokens = glob('oauth/*.'.$access_token['screen_name']);
         if(!empty($old_tokens)){
             foreach($old_tokens as $file){
                 unlink($file);
@@ -61,11 +61,11 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
         else{
             $suffix_string = $_SESSION['url_suffix'];
         }
-        if(file_put_contents('oauth/'.$access_token['screen_name'].'.'.$suffix_string,serialize($access_token)) === FALSE){
+        if(file_put_contents('oauth/'.$suffix_string.'.'.$access_token['screen_name'],serialize($access_token)) === FALSE){
             echo 'Error failed to write access_token file.Please check if you have write permission to oauth/ directory'."\n";
             exit();
         }
-        $url = BASE_URL.'o/'.$access_token['screen_name'].'/'.$suffix_string;
+        $url = BASE_URL.'o/'.$suffix_string;
         header('HTTP/1.1 302 Found');
         header('Status: 302 Found');
         header('Location: getapi.php?api='.$url);

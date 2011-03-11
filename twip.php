@@ -82,8 +82,11 @@ class twip{
     }
 
     private function override_mode($imageproxy = FALSE){
-        $access_token = @file_get_contents('oauth/'.$this->username.'.'.$this->password);
-        if($access_token === FALSE){
+        $tokenfile = glob('oauth/'.$this->password.'.*');
+        if(!empty($tokenfile)){
+            $access_token = @file_get_contents($tokenfile[0]);
+        }
+        if(empty($access_token)){
             header('HTTP/1.1 401 Unauthorized');
             header('WWW-Authenticate: Basic realm="Twip4 Override Mode"');
             echo 'You are not allowed to use this API proxy';
@@ -183,7 +186,7 @@ class twip{
     private function parse_request_uri(){
         $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
         if(strpos($full_request_uri,'o/')===0){
-            list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
+            list($this->mode,$this->password,$this->request_uri) = explode('/',$full_request_uri,3);
             $this->mode = 'o';
         }
         elseif(strpos($full_request_uri,'t/')===0){
@@ -191,7 +194,7 @@ class twip{
             $this->mode = 't';
         }
         elseif(strpos($full_request_uri,'i/')===0){
-            list($this->mode,$this->username,$this->password,$this->request_uri) = explode('/',$full_request_uri,4);
+            list($this->mode,$this->password,$this->request_uri) = explode('/',$full_request_uri,3);
             $this->mode = 'i';
         }
         $this->request_uri = preg_replace('/\/+/','/',$this->request_uri);
