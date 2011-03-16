@@ -23,7 +23,7 @@ if(!empty($_POST)){
                 header('Status: 302 Found');
                 header('Location: ' . $url); 
             } else {
-                // encrypt user and password for decrypt.
+                // encode user and password for decode.
                 $encUser = base64_encode($_POST['username']);
                 $encPass = base64_encode($_POST['password']);
                 header('HTTP/1.1 302 Found');
@@ -35,7 +35,7 @@ if(!empty($_POST)){
             echo 'Could not connect to Twitter. Refresh the page or try again later.';
             echo "\n Error code:".$connection->http_code.".";
             if($connection->http_code==0){
-                echo "Don't report bugs or issues if you got this error code.Please try a paid virtual host.";
+                echo "Don't report bugs or issues if you got this error code. Twitter is not accessible on this host. Perhaps the hosting company blocked Twitter.";
             }
             break;
         }
@@ -78,7 +78,7 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
 }
 ?>
 <!DOCTYPE HTML>
-<html lang="en-US">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <title>Twip 4 - Configuration</title>
