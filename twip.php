@@ -61,16 +61,11 @@ class twip{
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
 
-        $this->parameters = $this->get_parameters();
-
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
         if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
 
         $this->base_url = isset($options['base_url']) ? trim($options['base_url'],'/').'/' : self::BASE_URL;
-        if(strpos($this->base_url,'https://')===0){
-            $this->base_url = preg_replace('/https:\/\/(.*)/','http://${1}',$this->base_url);
-        }
-        if(strpos($this->base_url,'http://')===FALSE){
+        if(preg_match('/^https?:\/\//i',$this->base_url) == 0){
             $this->base_url = 'http://'.$this->base_url;
         }
 
@@ -113,6 +108,7 @@ class twip{
             echo 'click <a href="'.$this->base_url.'oauth.php">HERE</a> to get your API url';
             return;
         }
+        $this->parameters = $this->get_parameters();
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
         switch($this->method){
@@ -137,6 +133,12 @@ class twip{
         }
         else{
             $this->request_headers['Host'] = 'api.twitter.com';
+        }
+        if(isset($this->request_headers['Content-Type']) && 
+                $this->request_headers['Content-Type'] == 'application/x-www-form-urlencoded' ){
+            $this->parameters = $this->get_parameters(false);
+        }else{
+            $this->parameters = $this->get_parameters(true);
         }
         $forwarded_headers = array(
             'Host',
@@ -184,7 +186,7 @@ class twip{
     }
 
     private function parse_request_uri(){
-        $full_request_uri = substr('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen($this->base_url));
+        $full_request_uri = substr($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen(preg_replace('/^https?:\/\//i','',$this->base_url)));
         if(strpos($full_request_uri,'o/')===0){
             list($this->mode,$this->password,$this->request_uri) = explode('/',$full_request_uri,3);
             $this->mode = 'o';
@@ -211,8 +213,9 @@ class twip{
         return strlen($str);
     }
 
-    private function get_parameters(){
+    private function get_parameters($returnArray = TRUE){
         $data = file_get_contents('php://input');
+        if(!$returnArray) return $data;
         $ret = array();
         parse_str($data,$ret);
         return $ret;
