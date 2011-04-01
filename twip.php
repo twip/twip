@@ -153,6 +153,7 @@ class twip{
                 $this->forwarded_headers[] = $header.': '.$this->request_headers[$header];
             }
         }
+        if(!isset($this->forwarded_headers['Expect'])) $this->forwarded_headers[] = 'Expect:';
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
         curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
         if($this->method != 'GET'){
