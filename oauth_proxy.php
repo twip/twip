@@ -96,7 +96,7 @@ if($oauth_approve_form) {
   echo "Click <a href='$targetURL'>here</a> to continue.";
 }
 */
-  $targetURL = $login_obj->find('div[class=message-content] a', 0)->href;
+  $targetURL = $login_obj->find('div[class=happy notice] a', 0)->href;
   header('HTTP/1.1 302 Found');
   header('Status: 302 Found');
   header("Location: $targetURL");
