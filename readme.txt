@@ -1,0 +1,9 @@
+该分支基于twip4主线的r197版本，主要为了使twip4能够支持使用代理服务器访问网络，让墙内搭建twip api成为可能。该分支版本已成功运行在墙内tomato路由器上，路由器环境为lighttpd+fastcgi+autossh+polipo。不过目前为止只能使用Http代理，使用sock代理服务器时始终提示连接不了，不知道是不是curl库的原因，还请各位朋友多做测试。
+设置方法很简单，config.php文件中多了两项新设置项:
+PROXY和PROXY_TYPE
+PROXY填写格式为:address:port
+PROXY_TYPE格式参照文件内注释；
+两项空着表明不使用代理。
+
+
+

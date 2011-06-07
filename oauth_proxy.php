@@ -1,8 +1,9 @@
 <?php
+require('config.php');
 /*
  * @author tifan
  */
-include('include/simple_html_dom.php'); 
+include('include/simple_html_dom.php');
 /* Credit: */
 $oAuthEntryPage = isset($_POST['g']) ? $_POST['g'] : urldecode($_GET['g']);
 $twitterAccount = isset($_POST['u']) ? $_POST['u'] : base64_decode($_GET['u']);
@@ -44,6 +45,8 @@ foreach($login_fields as $key=>$value) {
 }
 $ckfile = tempnam ("/tmp", "CURLCOOKIE");
 $ch = curl_init();
+curl_setopt($ch, CURLOPT_PROXY, PROXY);
+curl_setopt($ch, CURLOPT_PROXYTYPE, PROXY_TYPE);
 curl_setopt($ch, CURLOPT_URL, 'https://twitter.com/oauth/authorize');
 curl_setopt($ch, CURLOPT_COOKIEJAR, $ckfile);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -77,7 +80,7 @@ if($oauth_approve_form) {
     $oauth_strings .= $key.'='.$value.'&';
   }
   //echo $login_result;
-  
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, 'https://twitter.com/oauth/authorize');
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

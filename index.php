@@ -8,5 +8,7 @@ $options['debug'] = @constant('DEBUG');
 $options['dolog'] = @constant('DOLOG');
 $options['compress'] = @constant('COMPRESS');
 $options['api_version'] = @constant('API_VERSION');
+$options['proxy'] = @constant('PROXY');
+$options['proxy_type'] = @constant('PROXY_TYPE');
 $twip = new twip($options);
 ?>

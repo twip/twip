@@ -1,12 +1,12 @@
 <?php
 
-function imageUpload($oauth_key, $oauth_secret, $token) {
+function imageUpload($oauth_key, $oauth_secret, $token, $proxy, $proxy_type) {
     if(empty($_FILES['media'])) header('HTTP/1.0 400 Bad Request');
     $image = $_FILES['media']['tmp_name'];
     $postdata = array
     (
         'message' => empty($_POST['message']) ? '' : $_POST['message'],
-        'media' => "@$image", 
+        'media' => "@$image",
     );
     $signingurl = 'https://api.twitter.com/1/account/verify_credentials.json';
     $consumer = new OAuthConsumer($oauth_key, $oauth_secret);
@@ -17,12 +17,14 @@ function imageUpload($oauth_key, $oauth_secret, $token) {
     // header
     $header = $request->to_header("http://api.twitter.com/");
 
-    /**** request method ****/ 
+    /**** request method ****/
     $url = 'http://img.ly/api/2/upload.json';
     $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_PROXY, $proxy);
+    curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Auth-Service-Provider: '.$signingurl,'X-Verify-Credentials-'.$header)); 
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Auth-Service-Provider: '.$signingurl,'X-Verify-Credentials-'.$header));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);

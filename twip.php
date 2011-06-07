@@ -15,7 +15,7 @@ class twip{
 
         ob_start();
         $compressed = $this->compress && Extension_Loaded('zlib') && ob_start("ob_gzhandler");
-        
+
         if($this->mode=='t'){
             $this->transparent_mode();
         }
@@ -60,6 +60,8 @@ class twip{
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
+        $this->proxy = $options['proxy'];
+        $this->proxy_type = $options['proxy_type'];
 
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
         if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
@@ -97,7 +99,7 @@ class twip{
 
         if($imageproxy){
             if($this->method=='POST'){
-                echo imageUpload($this->oauth_key, $this->oauth_secret, $this->access_token);
+                echo imageUpload($this->oauth_key, $this->oauth_secret, $this->access_token, $this->proxy, $this->proxy_type);
             }else{
                 echo 'The image proxy needs POST method.';
             }
@@ -110,7 +112,7 @@ class twip{
         }
         $this->parameters = $this->get_parameters();
         $this->uri_fixer();
-        $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
+        $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret'], $this->proxy, $this->proxy_type);
         switch($this->method){
             case 'POST':
                 echo $this->connection->post($this->request_uri,$this->parameters);
@@ -154,6 +156,8 @@ class twip{
             }
         }
         if(!isset($this->forwarded_headers['Expect'])) $this->forwarded_headers[] = 'Expect:';
+        curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
+        curl_setopt($ch, CURLOPT_PROXYTYPE, $this->proxy_type);
         curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
         curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
         if($this->method != 'GET'){

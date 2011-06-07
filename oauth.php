@@ -7,7 +7,7 @@ if(isset($_POST['url_suffix'])){
 }
 if(!empty($_POST)){
     if(!isset($_GET['type']) || $_GET['type']==1 || $_GET['type']==2){
-        $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
+        $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, NULL, NULL, PROXY, PROXY_TYPE);
         $request_token = $connection->getRequestToken(BASE_URL.'oauth.php');
 
         /* Save request token to session */
@@ -21,7 +21,7 @@ if(!empty($_POST)){
             if ($_GET['type']==1 || !isset($_GET['type'])) {
                 header('HTTP/1.1 302 Found');
                 header('Status: 302 Found');
-                header('Location: ' . $url); 
+                header('Location: ' . $url);
             } else {
                 // encode user and password for decode.
                 $encUser = base64_encode($_POST['username']);
@@ -43,7 +43,7 @@ if(!empty($_POST)){
     exit();
 }
 if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
-    $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+    $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret'], PROXY, PROXY_TYPE);
     $access_token = $connection->getAccessToken($_GET['oauth_verifier']);
     if($connection->http_code == 200){
         $old_tokens = glob('oauth/*.'.$access_token['screen_name']);
@@ -56,7 +56,7 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
             for ($i=0; $i<6; $i++) {
                 $d=rand(1,30)%2;
                 $suffix_string .= $d ? chr(rand(65,90)) : chr(rand(48,57));
-            } 
+            }
         }
         else{
             $suffix_string = $_SESSION['url_suffix'];
@@ -92,28 +92,28 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
 if(!isset($_GET['type']) || $_GET['type']==1){
 ?>
 	<div>
-	
+
 		<h3>Twip 配置</h3>
-		
+
 		<form action="" method="post">
-		
+
 			<ul class="clearfix">
 				<li><a class="active" href="oauth.php?type=1">OAuth 验证</a></li>
 				<li><a href="oauth.php?type=2">模拟 OAuth 验证</a></li>
 			</ul>
-			
+
 			<hr class="clear" />
-			
+
 			<p>
 				<label for="url_suffix">自定义 URL 地址</label>
                 <input class="half" type="text" value="<?php echo BASE_URL.'o/';?>" id="base_url" disabled autocomplete="off" />
 				<input class="half" type="text" value="" id="url_suffix" autocomplete="off" name="url_suffix" />
 			</p>
-			
+
 			<input type="submit" value="提交认证" class="button">
-		
+
 		</form>
-	</div>		
+	</div>
 	<div id="footer">
 		2010 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
 	</div>
@@ -125,39 +125,39 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 else{
 ?>
 	<div>
-	
+
 		<h3>Twip 配置</h3>
-		
+
 		<form action="" method="post">
-		
+
 			<ul class="clearfix">
 				<li><a href="oauth.php?type=1">OAuth 验证</a></li>
 				<li><a class="active" href="oauth.php?type=2">模拟 OAuth 验证</a></li>
 			</ul>
-			
+
 			<hr class="clear" />
-			
+
 			<p>
 				<label for="url_suffix">1. 自定义 URL 地址</label>
                 <input class="half" type="text" value="<?php echo BASE_URL.'o/';?>" id="base_url" disabled autocomplete="off" />
 				<input class="half" type="text" value="" id="url_suffix" name="url_suffix" autocomplete="off" />
 			</p>
-			
+
 			<p>
 				<label for="username">2. 你的 Twitter 用户名</label>
 				<input type="text" value="" id="username" name="username" autocomplete="off" />
 			</p>
-			
+
 			<p>
 				<label for="password">3. 你的 Twitter 密码</label>
 				<input type="password" value="" id="password" name="password" autocomplete="off" />
 			</p>
-			
+
 			<input type="submit" value="提交认证" class="button" />
-		
+
 		</form>
-		
-	</div>		
+
+	</div>
 	<div id="footer">
 		2010 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
 	</div>

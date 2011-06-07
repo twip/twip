@@ -35,6 +35,8 @@ class TwitterOAuth {
   public $useragent = 'TwitterOAuth v0.2.0-beta2';
   /* Immediately retry the API call if the response was not successful. */
   //public $retry = TRUE;
+  public $proxy = NULL;
+  public $proxy_type = NULL;
 
 
 
@@ -56,7 +58,7 @@ class TwitterOAuth {
   /**
    * construct TwitterOAuth object
    */
-  function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
+  function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL, $proxy = NULL, $proxy_type = NULL) {
     $this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
     if (!empty($oauth_token) && !empty($oauth_token_secret)) {
@@ -64,6 +66,8 @@ class TwitterOAuth {
     } else {
       $this->token = NULL;
     }
+    $this->proxy = $proxy;
+    $this->proxy_type = $proxy_type;
   }
 
 
@@ -198,6 +202,8 @@ class TwitterOAuth {
     $this->http_info = array();
     $ci = curl_init();
     /* Curl settings */
+    curl_setopt($ci, CURLOPT_PROXY, $this->proxy);
+    curl_setopt($ci, CURLOPT_PROXYTYPE, $this->proxy_type);
     curl_setopt($ci, CURLOPT_USERAGENT, $this->useragent);
     curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, $this->connecttimeout);
     curl_setopt($ci, CURLOPT_TIMEOUT, $this->timeout);
