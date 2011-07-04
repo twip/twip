@@ -17,7 +17,7 @@ if(!empty($_POST)){
         switch ($connection->http_code) {
           case 200:
             /* Build authorize URL */
-            $url = $connection->getAuthorizeURL($_SESSION['oauth_token']);
+            $url = $connection->getAuthorizeURL($_SESSION['oauth_token'],FALSE);
             if ($_GET['type']==1 || !isset($_GET['type'])) {
                 header('HTTP/1.1 302 Found');
                 header('Status: 302 Found');

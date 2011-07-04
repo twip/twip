@@ -92,7 +92,7 @@ class twip{
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
 
-        if($this->request_uri == 'oauth/access_token'){
+        if(preg_match('!oauth/access_token\??!', $this->request_uri)){
             $this->echo_token();
             return;
         }
