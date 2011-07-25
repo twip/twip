@@ -44,7 +44,7 @@ foreach($login_fields as $key=>$value) {
 }
 $ckfile = tempnam ("/tmp", "CURLCOOKIE");
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://twitter.com/oauth/authorize');
+curl_setopt($ch, CURLOPT_URL, 'https://api.twitter.com/oauth/authorize');
 curl_setopt($ch, CURLOPT_COOKIEJAR, $ckfile);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, count($login_fields));
