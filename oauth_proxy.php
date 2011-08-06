@@ -52,7 +52,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $login_string);
 $login_result = curl_exec($ch);
 curl_close($ch);
 $login_obj = str_get_html($login_result);
-$login_error = $login_obj->find('p[class=oauth-errors]', 0)->innertext;
+$login_error = $login_obj->find('div[class=error notice] p', 0)->innertext;
 if(strlen($login_error) > 8) {
   /* This is a workaround coz oauth_errors can be "&nbsp;" */
   echo "There must be something wrong with your user account and password combination.<br/>";
@@ -96,8 +96,9 @@ if($oauth_approve_form) {
   echo "Click <a href='$targetURL'>here</a> to continue.";
 }
 */
-  $targetURL = $login_obj->find('div[class=happy notice] a', 0)->href;
+  $targetURL = $login_obj->find('div[class=happy notice callback] a', 0)->href;
   header('HTTP/1.1 302 Found');
   header('Status: 302 Found');
   header("Location: $targetURL");
+  echo "Please click <a href='$targetURL'>here</a> to continue.";
 ?>
