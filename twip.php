@@ -10,6 +10,68 @@ class twip{
     const BASE_URL = 'http://yegle.net/twip/';
     const API_VERSION = '1';
 
+    public function replace_tco_json(&$status){
+        if(!isset($status->entities)){
+            return;
+        }
+        mb_internal_encoding('UTF-8');
+
+        $a = array_reverse($status->entities->urls);
+        foreach($a as &$url){
+            if($url->expanded_url){
+                $status->text = mb_substr($status->text, 0, $url->indices[0]) . $url->expanded_url . mb_substr($status->text, $url->indices[1]);
+                $url->indices[1] = $url->indices[0] + mb_strlen($url->expanded_url);
+                $url->url = $url->expanded_url;
+            }
+        }
+        $status->entities->urls = array_reverse($a);
+
+        if(!isset($status->entities->media)){
+            return;
+        }
+        $a = array_reverse($status->entities->media);
+        foreach($status->entities->media as &$media){
+            $status->text = mb_substr($status->text, 0, $media->indices[0]) . $media->media_url_https . mb_substr($status->text, $media->indices[1]);
+            $media->indices[1] = $media->indices[0] + mb_strlen($media->media_url_https);
+            $media->url = $media->media_url_https;
+        }
+        $status->entities->media = array_reverse($a);
+    }
+
+    public function json_x86_decode($in){
+        $in = preg_replace('/id":(\d+)/', 'id":"\1"', $in);
+        return json_decode($in);
+    }
+    public function json_x86_encode($in){
+        $in = json_encode($in);
+        return preg_replace('/id":"(\d+)"/', 'id":\1', $in);
+    }
+
+    public function parse_entities($status, $type){
+        if($type == 'json'){
+            $j = is_string($status) ? $this->json_x86_decode($status) : $status;
+            if(is_array($j)){
+                foreach($j as &$s){
+                    $s = $this->parse_entities($s, $type);
+                }
+            }
+            else{
+                $this->replace_tco_json($j);
+                if(isset($j->status)){
+                    $this->replace_tco_json($j->status);
+                }
+                if(isset($j->retweeted_status)){
+                    $this->replace_tco_json($j->retweeted_status);
+                }
+                if(isset($j->status->retweeted_status)){
+                    $this->replace_tco_json($j->status->retweeted_status);
+                }
+            }
+            return is_string($status) ? $this->json_x86_encode($j) : $j;
+        }
+        return $status;
+    }
+
     public function twip($options = null){
         $this->parse_variables($options);
 
@@ -111,15 +173,31 @@ class twip{
         $this->parameters = $this->get_parameters();
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
+
+        if(preg_match('/^[^?]+\.json/', $this->request_uri)){
+            $type = 'json';
+        } else {
+            $type = 'xml';
+        }
+
+        if(!isset($_REQUEST['include_entities'])){
+            if(preg_match('/^[^?]+\?/', $this->request_uri)){
+                $this->request_uri .= '&include_entities=true';
+            }
+            else{
+                $this->request_uri .= '?include_entities=true';
+            }
+        }
+
         switch($this->method){
             case 'POST':
-                echo $this->connection->post($this->request_uri,$this->parameters);
+                echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters), $type);
                 break;
             case 'DELETE':
-                echo $this->connection->delete($this->request_uri,$this->parameters);
+                echo $this->parse_entities($this->connection->delete($this->request_uri,$this->parameters), $type);
                 break;
             default:
-                echo $this->connection->get($this->request_uri);
+                echo $this->parse_entities($this->connection->get($this->request_uri), $type);
                 break;
         }
     }
@@ -178,7 +256,7 @@ class twip{
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
-            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9]\/(.*)/',$this->request_uri)){
+            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9a-z]\/(.*)/',$this->request_uri)){
                 $this->request_uri = $this->parent_api.$this->request_uri;
             }else{
                 $this->request_uri = $this->parent_api.$this->api_version.'/'.$this->request_uri;
