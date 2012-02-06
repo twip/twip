@@ -48,7 +48,7 @@ if(isset($_GET['api'])){
 		
 	</div>		
 	<div id="footer">
-		2010 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
+		2012 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
 	</div>
 </body>
 </html>
