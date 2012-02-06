@@ -119,7 +119,7 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 	</div>
 </body>
 </html>
-<?
+<?php
     exit();
 }
 else{
@@ -163,7 +163,7 @@ else{
 	</div>
 </body>
 </html>
-<?
+<?php
     exit();
 }
 ?>
