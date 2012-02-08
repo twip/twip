@@ -88,7 +88,7 @@ if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
 <body>
 	<h1><a href="index.html">Twip<sup title="Version 4">4</sup></a></h1>
 	<h2>Twitter API Proxy, redefined.</h2>
-<?
+<?php
 if(!isset($_GET['type']) || $_GET['type']==1){
 ?>
 	<div>
