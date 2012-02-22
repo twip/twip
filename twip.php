@@ -252,6 +252,7 @@ class twip{
         if( isset($_SERVER['HTTP_USER_AGENT']) && substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
             $this->request_uri = str_replace('api/','',$this->request_uri);//remove "api/"
         }
+        $this->request_uri = str_replace('pc=true','pc=false',$this->request_uri); //change pc=true to pc=false 
         if(isset($this->api_type) && $this->api_type == 'search'){
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
