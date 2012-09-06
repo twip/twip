@@ -256,7 +256,7 @@ class twip{
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
-            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9a-z]\/(.*)/',$this->request_uri)){
+            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9a-z.]+\/(.*)/',$this->request_uri)){
                 $this->request_uri = $this->parent_api.$this->request_uri;
             }else{
                 $this->request_uri = $this->parent_api.$this->api_version.'/'.$this->request_uri;
