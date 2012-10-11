@@ -8,7 +8,7 @@ class twip{
     const LOGFILE = 'log.txt';
     const LOGTIMEZONE = 'Etc/GMT-8';
     const BASE_URL = 'http://yegle.net/twip/';
-    const API_VERSION = '1';
+    const API_VERSION = '1.1';
 
     public function replace_tco_json(&$status){
         if(!isset($status->entities)){
@@ -77,7 +77,7 @@ class twip{
 
         ob_start();
         $compressed = $this->compress && Extension_Loaded('zlib') && ob_start("ob_gzhandler");
-        
+
         if($this->mode=='t'){
             $this->transparent_mode();
         }
@@ -252,7 +252,7 @@ class twip{
         if( isset($_SERVER['HTTP_USER_AGENT']) && substr($_SERVER['HTTP_USER_AGENT'],0,6) == 'twhirl' ){
             $this->request_uri = str_replace('api/','',$this->request_uri);//remove "api/"
         }
-        $this->request_uri = str_replace('pc=true','pc=false',$this->request_uri); //change pc=true to pc=false 
+        $this->request_uri = str_replace('pc=true','pc=false',$this->request_uri); //change pc=true to pc=false
         $this->request_uri = str_replace('&earned=true','',$this->request_uri); //remove "&earned=true"
         if(isset($this->api_type) && $this->api_type == 'search'){
             $this->request_uri = $this->parent_search_api.$this->request_uri;
