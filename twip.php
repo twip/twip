@@ -259,7 +259,7 @@ class twip{
             'pc=true' => 'pc=false', //change pc=true to pc=false
             '&earned=true' => '', //remove "&earned=true"
             '/mention.json' => '/mentions_timeline.json', //backward compat for API 1.0
-        )
+        );
 
         $api = str_replace(array_keys($replacement), array_values($replacement), $api);
 
