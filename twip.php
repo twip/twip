@@ -249,21 +249,43 @@ class twip{
     }
 
     private function uri_fixer(){
-        $this->request_uri = str_replace('pc=true','pc=false',$this->request_uri); //change pc=true to pc=false
-        $this->request_uri = str_replace('&earned=true','',$this->request_uri); //remove "&earned=true"
+        // $api is the API request without version number
+        list($version, $api) = $this->extract_uri_version($this->request_uri);
+
+        // If user specified version, use that version. Else use default version
+        $version = ($version == "") ? $this->api_version : $version;
+
+        $replacement = array(
+            'pc=true' => 'pc=false', //change pc=true to pc=false
+            '&earned=true' => '', //remove "&earned=true"
+            '/mention.json' => '/mentions_timeline.json', //backward compat for API 1.0
+        )
+
+        $api = str_replace(array_keys($replacement), array_values($replacement), $api);
+
+
         if(isset($this->api_type) && $this->api_type == 'search'){
-            $this->request_uri = $this->parent_search_api.$this->request_uri;
+            $this->request_uri = sprintf("%s%s", $this->parent_search_api, $api);
         }
         else{
-            // backward compat for API 1.0
-            $this->request_uri = str_replace('/mentions.json','/mentions_timeline.json',$this->request_uri);
-
-            if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9.]+\/(.*)/',$this->request_uri)){
-                $this->request_uri = $this->parent_api.$this->request_uri;
+            if( strpos($api,'oauth/') === 0
+                || strpos($api, 'i/') === 0 ){
+                // These API requests don't needs version string
+                $this->request_uri = sprintf("%s%s", $this->parent_api, $api);
             }else{
-                $this->request_uri = $this->parent_api.$this->api_version.'/'.$this->request_uri;
+                $this->request_uri = sprintf("%s%s/%s", $this->parent_api, $version, $api);
             }
         }
+    }
+
+    public function extract_uri_version($uri){
+        $re = '/^(([0-9.]+)\/)?(.*)/';
+
+        preg_match($re, $uri, $matches);
+
+        $version = $matches[2];
+        $api = $matches[3];
+        return array($version, $api);
     }
 
     private function parse_request_uri(){
