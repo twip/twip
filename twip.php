@@ -206,7 +206,7 @@ class twip{
         $this->uri_fixer();
         $ch = curl_init($this->request_uri);
         $this->request_headers = OAuthUtil::get_headers();
-        if($this->api_type == 'search'){
+        if((strpos($this->request_uri,'search.') === 0)){
             $this->request_headers['Host'] = 'search.twitter.com';
         }
         else{
@@ -259,12 +259,13 @@ class twip{
             'pc=true' => 'pc=false', //change pc=true to pc=false
             '&earned=true' => '', //remove "&earned=true"
             '/mention.json' => '/mentions_timeline.json', //backward compat for API 1.0
+            'i/search.json' => 'search.json', //fix search issue on twitter for iPhone
         );
 
         $api = str_replace(array_keys($replacement), array_values($replacement), $api);
 
 
-        if(isset($this->api_type) && $this->api_type == 'search'){
+        if((strpos($api,'search.') === 0)){
             $this->request_uri = sprintf("%s%s", $this->parent_search_api, $api);
         }
         else{
@@ -303,9 +304,6 @@ class twip{
             $this->mode = 'i';
         }
         $this->request_uri = preg_replace('/\/+/','/',$this->request_uri);
-        if((strpos($this->request_uri,'search.') === 0)){
-            $this->api_type = 'search';
-        }
     }
 
     private function headerfunction($ch,$str){
