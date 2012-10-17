@@ -258,6 +258,9 @@ class twip{
             $this->request_uri = $this->parent_search_api.$this->request_uri;
         }
         else{
+            // backward compat for API 1.0
+            $this->request_uri = str_replace('/mentions.json','/mentions_timeline.json',$this->request_uri);
+
             if(strpos($this->request_uri,'oauth/') === 0 || preg_match('/^[0-9.]+\/(.*)/',$this->request_uri)){
                 $this->request_uri = $this->parent_api.$this->request_uri;
             }else{
