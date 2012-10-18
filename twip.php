@@ -258,7 +258,7 @@ class twip{
         $replacement = array(
             'pc=true' => 'pc=false', //change pc=true to pc=false
             '&earned=true' => '', //remove "&earned=true"
-            '/mention.json' => '/mentions_timeline.json', //backward compat for API 1.0
+            '/mentions.json' => '/mentions_timeline.json', //backward compat for API 1.0
             'i/search.json' => 'search.json', //fix search issue on twitter for iPhone
         );
 
