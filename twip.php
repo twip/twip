@@ -89,6 +89,7 @@ class twip{
         }
         else{
             header('HTTP/1.0 400 Bad Request');
+            exit();
         }
 
         $str = ob_get_contents();
