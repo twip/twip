@@ -7,11 +7,11 @@ url.rewrite-if-not-file += ( "^/(.*)$" => "/index.php/$1" )
 
 If your TWIP installation have a prefix of /twip/, then you should use
 
-^/twip/(.*)$
+^/twip/(.*)$ /twip/index.php
 
 instead of 
 
-^/(.*)$.
+^/(.*)$. /index.php
 
 Just a reminder, please specify the index-file to "index.php"
 
@@ -23,5 +23,5 @@ index-file.names   = ( "index.php", "index.html",
 nginx:
 
 location / { # it can be /twip as well
-  index-file index.php;
+  index index.php;
 }
