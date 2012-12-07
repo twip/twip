@@ -1,12 +1,20 @@
 <?php
+session_start();
 /*
  * @author tifan
  */
 include('include/simple_html_dom.php'); 
 /* Credit: */
-$oAuthEntryPage = isset($_POST['g']) ? $_POST['g'] : urldecode($_GET['g']);
-$twitterAccount = isset($_POST['u']) ? $_POST['u'] : base64_decode($_GET['u']);
-$twitterPassword = isset($_POST['p']) ? $_POST['p'] : base64_decode($_GET['p']);
+
+if(isset($_SESSION['oauth_proxy'])){
+    $oAuthEntryPage = $_SESSION['oauth_proxy']['url'];
+    $twitterAccount = $_SESSION['oauth_proxy']['username'];
+    $twitterPassword = $_SESSION['oauth_proxy']['password'];
+}
+else{
+    header("Location: oauth.php");
+    exit();
+}
 
 /* form: https://twitter.com/oauth/authenticate
   authenticity_token -> 抓

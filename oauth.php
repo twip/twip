@@ -24,11 +24,14 @@ if(!empty($_POST)){
                 header('Location: ' . $url); 
             } else {
                 // encode user and password for decode.
-                $encUser = base64_encode($_POST['username']);
-                $encPass = base64_encode($_POST['password']);
+                $_SESSION['oauth_proxy'] = array(
+                    'username' => $_POST['username'],
+                    'password' => $_POST['password'],
+                    'url' => $url
+                );
                 header('HTTP/1.1 302 Found');
                 header('Status: 302 Found');
-                header('Location: oauth_proxy.php?u=' . $encUser . '&p=' . $encPass . '&g=' . urlencode($url));
+                header('Location: oauth_proxy.php');
             }
             break;
           default:
