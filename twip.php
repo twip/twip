@@ -190,6 +190,10 @@ class twip{
             }
         }
 
+        if(strpos($this->request_uri,'statuses/update_with_media') > 0){
+            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
+        }
+
         switch($this->method){
             case 'POST':
                 echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters), $type);
