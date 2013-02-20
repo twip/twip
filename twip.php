@@ -16,15 +16,17 @@ class twip{
         }
         mb_internal_encoding('UTF-8');
 
-        $a = array_reverse($status->entities->urls);
-        foreach($a as &$url){
-            if($url->expanded_url){
-                $status->text = mb_substr($status->text, 0, $url->indices[0]) . $url->expanded_url . mb_substr($status->text, $url->indices[1]);
-                $url->indices[1] = $url->indices[0] + mb_strlen($url->expanded_url);
-                $url->url = $url->expanded_url;
+        if(isset($status->entities->urls)){
+            $a = array_reverse($status->entities->urls);
+            foreach($a as &$url){
+                if($url->expanded_url){
+                    $status->text = mb_substr($status->text, 0, $url->indices[0]) . $url->expanded_url . mb_substr($status->text, $url->indices[1]);
+                    $url->indices[1] = $url->indices[0] + mb_strlen($url->expanded_url);
+                    $url->url = $url->expanded_url;
+                }
             }
+            $status->entities->urls = array_reverse($a);
         }
-        $status->entities->urls = array_reverse($a);
 
         if(!isset($status->entities->media)){
             return;
