@@ -118,7 +118,7 @@ if(!isset($_GET['type']) || $_GET['type']==1){
 		</form>
 	</div>		
 	<div id="footer">
-		2012 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
+		2013 &copy; <a href="https://github.com/twip/twip">Twip Project</a>
 	</div>
 </body>
 </html>
@@ -161,7 +161,7 @@ else{
 		
 	</div>		
 	<div id="footer">
-		2012 &copy; <a href="http://code.google.com/p/twip/">Twip Project</a>
+		2013 &copy; <a href="https://github.com/twip/twip">Twip Project</a>
 	</div>
 </body>
 </html>
