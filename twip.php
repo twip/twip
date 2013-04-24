@@ -219,8 +219,10 @@ class twip{
         else{
             $this->request_headers['Host'] = 'api.twitter.com';
         }
+
+        // Don't parse POST arguments as array if emulating a browser submit
         if(isset($this->request_headers['Content-Type']) && 
-                $this->request_headers['Content-Type'] == 'application/x-www-form-urlencoded' ){
+                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== NULL){
             $this->parameters = $this->get_parameters(false);
         }else{
             $this->parameters = $this->get_parameters(true);
