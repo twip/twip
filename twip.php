@@ -9,6 +9,7 @@ class twip{
     const LOGTIMEZONE = 'Etc/GMT-8';
     const BASE_URL = 'http://yegle.net/twip/';
     const API_VERSION = '1.1';
+    const EXPAND_URL = '1.1';
 
     public function replace_tco_json(&$status){
         if(!isset($status->entities)){
@@ -57,7 +58,7 @@ class twip{
                     $s = $this->parse_entities($s, $type);
                 }
             }
-            else{
+            elseif($this->expand_url){
                 $this->replace_tco_json($j);
                 if(isset($j->status)){
                     $this->replace_tco_json($j->status);
@@ -125,6 +126,7 @@ class twip{
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
+        $this->expand_url = isset($options['expand_url']) ? !!$options['expand_url'] : FALSE;
 
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
         if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
@@ -219,8 +221,10 @@ class twip{
         else{
             $this->request_headers['Host'] = 'api.twitter.com';
         }
+
+        // Don't parse POST arguments as array if emulating a browser submit
         if(isset($this->request_headers['Content-Type']) && 
-                $this->request_headers['Content-Type'] == 'application/x-www-form-urlencoded' ){
+                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== NULL){
             $this->parameters = $this->get_parameters(false);
         }else{
             $this->parameters = $this->get_parameters(true);
