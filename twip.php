@@ -194,10 +194,6 @@ class twip{
             }
         }
 
-        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
-            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
-        }
-
         switch($this->method){
             case 'POST':
                 echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters), $type);
@@ -288,6 +284,11 @@ class twip{
                 $this->request_uri = sprintf("%s%s/%s", $this->parent_api, $version, $api);
             }
         }
+
+        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
+            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
+        }
+
     }
 
     public function extract_uri_version($uri){
