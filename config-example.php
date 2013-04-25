@@ -6,5 +6,5 @@ define('API_VERSION','1.1');
 define('DEBUG',FALSE);
 define('DOLOG',FALSE);
 define('COMPRESS',FALSE);
-define('EXPAND_URL',FALSE);
+define('O_MODE_PARSE_ENTITIES',FALSE);
 ?>
