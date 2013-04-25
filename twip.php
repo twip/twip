@@ -194,7 +194,7 @@ class twip{
             }
         }
 
-        if(strpos($this->request_uri,'statuses/update_with_media') > 0){
+        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
             $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
         }
 
