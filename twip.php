@@ -221,14 +221,14 @@ class twip{
 
         // Don't parse POST arguments as array if emulating a browser submit
         if(isset($this->request_headers['Content-Type']) && 
-                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== NULL){
+                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== FALSE){
             $this->parameters = $this->get_parameters(false);
         }else{
             $this->parameters = $this->get_parameters(true);
         }
 
-        if(strpos($this->request_uri,'statuses/update_with_media') !== NULL &&
-            strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== NULL) {
+        if(strpos($this->request_uri,'statuses/update_with_media') !== FALSE &&
+            strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE) {
             $this->parameters = $_POST;
             if(count($_FILES) > 0) {
                 $media = @$_FILES['media'];
@@ -266,7 +266,7 @@ class twip{
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $ret = curl_exec($ch);
         //fixme:redirect request back to twip,this is nasty and insecure...
-        if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==NULL){
+        if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==FALSE){
             $ret = str_replace('<form action="https://api.twitter.com/oauth/authorize"','<form action="'.$this->base_url.'t/oauth/authorize"',$ret);
             $ret = str_replace('<div id="signin_form">','<h1><strong style="color:red">Warning!This page is proxied by twip and therefore you may leak your password to API proxy owner!</strong></h1><div id="signin_form">',$ret);
         }
@@ -338,7 +338,7 @@ class twip{
     }
 
     private function headerfunction($ch,$str){
-        if(strpos($str,'Content-Length:')!==NULL){
+        if(strpos($str,'Content-Length:')!==FALSE){
             header($str);
         }
         $this->response_headers[] = $str;
