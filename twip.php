@@ -212,12 +212,6 @@ class twip{
         $this->uri_fixer();
         $ch = curl_init($this->request_uri);
         $this->request_headers = OAuthUtil::get_headers();
-        if((strpos($this->request_uri,'search.') === 0)){
-            $this->request_headers['Host'] = 'search.twitter.com';
-        }
-        else{
-            $this->request_headers['Host'] = 'api.twitter.com';
-        }
 
         // Don't parse POST arguments as array if emulating a browser submit
         if(isset($this->request_headers['Content-Type']) && 
@@ -281,6 +275,19 @@ class twip{
         // If user specified version, use that version. Else use default version
         $version = ($version == "") ? $this->api_version : $version;
 
+        if($version === "1") {
+            if((strpos($this->request_uri,'search.') === 0)){
+                $this->request_headers['Host'] = 'search.twitter.com';
+            }
+            else{
+                $this->request_headers['Host'] = 'api.twitter.com';
+            }
+
+            if(strpos($this->request_uri,'statuses/update_with_media') > 0){
+                $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
+            }
+        }
+
         $replacement = array(
             'pc=true' => 'pc=false', //change pc=true to pc=false
             '&earned=true' => '', //remove "&earned=true"
@@ -304,9 +311,6 @@ class twip{
             }
         }
 
-        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
-            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
-        }
 
     }
 
