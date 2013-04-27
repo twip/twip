@@ -76,7 +76,6 @@ class twip{
 
     public function twip($options = null){
         $this->parse_variables($options);
-        $this->tmp_files = array();
 
         ob_start();
         $compressed = $this->compress && Extension_Loaded('zlib') && ob_start("ob_gzhandler");
@@ -227,12 +226,7 @@ class twip{
             if(count($_FILES) > 0) {
                 $media = @$_FILES['media'];
                 $fn = $media['tmp_name'][0];
-                $name = $media['name'][0];
-                $dst = dirname($fn) . '/' . strtoupper(sha1(uniqid().$name));
-
-                move_uploaded_file($fn, $dst);
-                $this->parameters["media"] = '@' . $dst;
-                array_push($this->tmp_files, $dst);
+                $this->parameters["media"] = '@' . $fn;
                 unset($this->request_headers['Content-Type']);
             }
         }
@@ -265,7 +259,6 @@ class twip{
             $ret = str_replace('<div id="signin_form">','<h1><strong style="color:red">Warning!This page is proxied by twip and therefore you may leak your password to API proxy owner!</strong></h1><div id="signin_form">',$ret);
         }
         echo $ret;
-        if(count($this->tmp_files) > 0) array_map(unlink, $this->tmp_files);
     }
 
     private function uri_fixer(){
