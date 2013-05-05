@@ -9,7 +9,6 @@ class twip{
     const LOGTIMEZONE = 'Etc/GMT-8';
     const BASE_URL = 'http://yegle.net/twip/';
     const API_VERSION = '1.1';
-    const EXPAND_URL = '1.1';
 
     public function replace_tco_json(&$status){
         if(!isset($status->entities)){
@@ -51,14 +50,14 @@ class twip{
     }
 
     public function parse_entities($status, $type){
-        if($type == 'json'){
+        if($this->o_mode_parse_entities && $type == 'json'){
             $j = is_string($status) ? $this->json_x86_decode($status) : $status;
             if(is_array($j)){
                 foreach($j as &$s){
                     $s = $this->parse_entities($s, $type);
                 }
             }
-            elseif($this->expand_url){
+            else {
                 $this->replace_tco_json($j);
                 if(isset($j->status)){
                     $this->replace_tco_json($j->status);
@@ -126,7 +125,7 @@ class twip{
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
-        $this->expand_url = isset($options['expand_url']) ? !!$options['expand_url'] : FALSE;
+        $this->o_mode_parse_entities = isset($options['o_mode_parse_entities']) ? !!$options['o_mode_parse_entities'] : FALSE;
 
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
         if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
@@ -185,17 +184,14 @@ class twip{
             $type = 'xml';
         }
 
-        if(!isset($_REQUEST['include_entities'])){
+        // Add include_entities arg if not exists and API is configured to expand t.co
+        if($this->o_mode_parse_entities && !isset($_REQUEST['include_entities'])){
             if(preg_match('/^[^?]+\?/', $this->request_uri)){
                 $this->request_uri .= '&include_entities=true';
             }
             else{
                 $this->request_uri .= '?include_entities=true';
             }
-        }
-
-        if(strpos($this->request_uri,'statuses/update_with_media') > 0){
-            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
         }
 
         switch($this->method){
@@ -288,6 +284,11 @@ class twip{
                 $this->request_uri = sprintf("%s%s/%s", $this->parent_api, $version, $api);
             }
         }
+
+        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
+            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
+        }
+
     }
 
     public function extract_uri_version($uri){
