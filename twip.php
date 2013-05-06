@@ -234,7 +234,6 @@ class twip{
         }
 
         $forwarded_headers = array(
-            'Host',
             'User-Agent',
             'Authorization',
             'Content-Type',
@@ -270,12 +269,11 @@ class twip{
         // If user specified version, use that version. Else use default version
         $version = ($version == "") ? $this->api_version : $version;
 
+        $this->request_headers['Host'] = 'api.twitter.com';
+
         if($version === "1") {
             if((strpos($this->request_uri,'search.') === 0)){
                 $this->request_headers['Host'] = 'search.twitter.com';
-            }
-            else{
-                $this->request_headers['Host'] = 'api.twitter.com';
             }
 
             if(strpos($this->request_uri,'statuses/update_with_media') > 0){
