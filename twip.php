@@ -220,12 +220,14 @@ class twip{
             $this->parameters = $this->get_parameters(true);
         }
 
+        // Process Upload image (currently only first file will proxy to Twitter)
         if(strpos($this->request_uri,'statuses/update_with_media') !== FALSE &&
             strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE) {
+
             $this->parameters = $_POST;
-            if(count($_FILES) > 0) {
-                $media = @$_FILES['media'];
-                $fn = $media['tmp_name'][0];
+            if(count($_FILES) > 0 && isset($_FILES['media'])) {
+                $media = $_FILES['media'];
+                $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
                 $this->parameters["media"] = '@' . $fn;
                 unset($this->request_headers['Content-Type']);
             }
