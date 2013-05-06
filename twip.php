@@ -228,7 +228,7 @@ class twip{
             if(count($_FILES) > 0 && isset($_FILES['media'])) {
                 $media = $_FILES['media'];
                 $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
-                $this->parameters["media"] = '@' . $fn;
+                $this->parameters["media[]"] = '@' . $fn;
                 unset($this->request_headers['Content-Type']);
             }
         }
