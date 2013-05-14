@@ -178,13 +178,15 @@ class twip{
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
 
-        $this->request_headers = OAuthUtil::get_headers();
 
         // Process with update_with_media
-        if($this->method === 'POST' && strpos($this->request_uri,'statuses/update_with_media') !== FALSE &&
-            strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE) {
+        if($this->method === 'POST' && strpos($this->request_uri,'statuses/update_with_media') !== FALSE) {
+            $this->request_headers = OAuthUtil::get_headers();
 
-            if(count($_FILES) > 0 && isset($_FILES['media'])) {
+            // Check actually media uplaod
+            if(strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE
+                && count($_FILES) > 0 && isset($_FILES['media'])) {
+
                 $header_authorization = $this->connection->getOAuthRequest($this->request_uri, $this->method, null)->to_header();
                 $this->forwarded_headers = array("Host: api.twitter.com", $header_authorization, "Expect:");
                 $this->parameters = $_POST;
@@ -201,6 +203,9 @@ class twip{
                 $ret = curl_exec($ch);
 
                 echo $ret;
+                return;
+            } else {
+                header('HTTP/1.0 400 Bad Request');
                 return;
             }
         }
