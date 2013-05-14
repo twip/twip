@@ -178,6 +178,33 @@ class twip{
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
 
+        $this->request_headers = OAuthUtil::get_headers();
+
+        // Process with update_with_media
+        if($this->method === 'POST' && strpos($this->request_uri,'statuses/update_with_media') !== FALSE &&
+            strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE) {
+
+            if(count($_FILES) > 0 && isset($_FILES['media'])) {
+                $header_authorization = $this->connection->getOAuthRequest($this->request_uri, $this->method, null)->to_header();
+                $this->forwarded_headers = array("Host: api.twitter.com", $header_authorization, "Expect:");
+                $this->parameters = $_POST;
+
+                $media = $_FILES['media'];
+                $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
+                $this->parameters["media[]"] = '@' . $fn;
+
+                $ch = curl_init($this->request_uri);
+                curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
+                curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
+                curl_setopt($ch,CURLOPT_POSTFIELDS,$this->parameters);
+                curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+                $ret = curl_exec($ch);
+
+                echo $ret;
+                return;
+            }
+        }
+
         if(preg_match('/^[^?]+\.json/', $this->request_uri)){
             $type = 'json';
         } else {
