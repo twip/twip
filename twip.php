@@ -178,6 +178,38 @@ class twip{
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
 
+
+        // Process with update_with_media
+        if($this->method === 'POST' && strpos($this->request_uri,'statuses/update_with_media') !== FALSE) {
+            $this->request_headers = OAuthUtil::get_headers();
+
+            // Check actually media uplaod
+            if(strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE
+                && count($_FILES) > 0 && isset($_FILES['media'])) {
+
+                $header_authorization = $this->connection->getOAuthRequest($this->request_uri, $this->method, null)->to_header();
+                $this->forwarded_headers = array("Host: api.twitter.com", $header_authorization, "Expect:");
+                $this->parameters = $_POST;
+
+                $media = $_FILES['media'];
+                $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
+                $this->parameters["media[]"] = '@' . $fn;
+
+                $ch = curl_init($this->request_uri);
+                curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
+                curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
+                curl_setopt($ch,CURLOPT_POSTFIELDS,$this->parameters);
+                curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+                $ret = curl_exec($ch);
+
+                echo $ret;
+                return;
+            } else {
+                header('HTTP/1.0 400 Bad Request');
+                return;
+            }
+        }
+
         if(preg_match('/^[^?]+\.json/', $this->request_uri)){
             $type = 'json';
         } else {
@@ -211,22 +243,29 @@ class twip{
         $this->uri_fixer();
         $ch = curl_init($this->request_uri);
         $this->request_headers = OAuthUtil::get_headers();
-        if((strpos($this->request_uri,'search.') === 0)){
-            $this->request_headers['Host'] = 'search.twitter.com';
-        }
-        else{
-            $this->request_headers['Host'] = 'api.twitter.com';
-        }
 
         // Don't parse POST arguments as array if emulating a browser submit
         if(isset($this->request_headers['Content-Type']) && 
-                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== NULL){
+                strpos($this->request_headers['Content-Type'], 'application/x-www-form-urlencoded') !== FALSE){
             $this->parameters = $this->get_parameters(false);
         }else{
             $this->parameters = $this->get_parameters(true);
         }
+
+        // Process Upload image (currently only first file will proxy to Twitter)
+        if(strpos($this->request_uri,'statuses/update_with_media') !== FALSE &&
+            strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE) {
+
+            $this->parameters = $_POST;
+            if(count($_FILES) > 0 && isset($_FILES['media'])) {
+                $media = $_FILES['media'];
+                $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
+                $this->parameters["media[]"] = '@' . $fn;
+                unset($this->request_headers['Content-Type']);
+            }
+        }
+
         $forwarded_headers = array(
-            'Host',
             'User-Agent',
             'Authorization',
             'Content-Type',
@@ -248,7 +287,7 @@ class twip{
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
         $ret = curl_exec($ch);
         //fixme:redirect request back to twip,this is nasty and insecure...
-        if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==NULL){
+        if(strpos($this->request_uri,'oauth/authorize?oauth_token=')!==FALSE){
             $ret = str_replace('<form action="https://api.twitter.com/oauth/authorize"','<form action="'.$this->base_url.'t/oauth/authorize"',$ret);
             $ret = str_replace('<div id="signin_form">','<h1><strong style="color:red">Warning!This page is proxied by twip and therefore you may leak your password to API proxy owner!</strong></h1><div id="signin_form">',$ret);
         }
@@ -261,6 +300,18 @@ class twip{
 
         // If user specified version, use that version. Else use default version
         $version = ($version == "") ? $this->api_version : $version;
+
+        $this->request_headers['Host'] = 'api.twitter.com';
+
+        if($version === "1") {
+            if((strpos($this->request_uri,'search.') === 0)){
+                $this->request_headers['Host'] = 'search.twitter.com';
+            }
+
+            if(strpos($this->request_uri,'statuses/update_with_media') > 0){
+                $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
+            }
+        }
 
         $replacement = array(
             'pc=true' => 'pc=false', //change pc=true to pc=false
@@ -285,9 +336,6 @@ class twip{
             }
         }
 
-        if($version === "1" && strpos($this->request_uri,'statuses/update_with_media') > 0){
-            $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
-        }
 
     }
 
@@ -319,7 +367,7 @@ class twip{
     }
 
     private function headerfunction($ch,$str){
-        if(strpos($str,'Content-Length:')!==NULL){
+        if(strpos($str,'Content-Length:')!==FALSE){
             header($str);
         }
         $this->response_headers[] = $str;
