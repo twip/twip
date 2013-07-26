@@ -55,12 +55,12 @@ class twip{
         return preg_replace('/id":"(\d+)"/', 'id":\1', $in);
     }
 
-    public function parse_entities($status, $type){
-        if($this->o_mode_parse_entities && $type == 'json'){
+    public function parse_entities($status){
+        if($this->o_mode_parse_entities){
             $j = is_string($status) ? $this->json_x86_decode($status) : $status;
             if(is_array($j)){
                 foreach($j as &$s){
-                    $s = $this->parse_entities($s, $type);
+                    $s = $this->parse_entities($s);
                 }
             }
             else {
@@ -124,7 +124,6 @@ class twip{
     private function parse_variables($options){
         //parse options
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
-        $this->parent_search_api = isset($options['parent_search_api']) ? $options['parent_search_api'] : self::PARENT_SEARCH_API;
         $this->api_version = isset($options['api_version']) ? $options['api_version'] : self::API_VERSION;
         $this->debug = isset($options['debug']) ? !!$options['debug'] : FALSE;
         $this->dolog = isset($options['dolog']) ? !!$options['dolog'] : FALSE;
@@ -136,7 +135,6 @@ class twip{
         $this->o_mode_parse_entities = isset($options['o_mode_parse_entities']) ? !!$options['o_mode_parse_entities'] : FALSE;
 
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
-        if(substr($this->parent_search_api, -1) !== '/') $this->parent_search_api .= '/';
 
         $this->base_url = isset($options['base_url']) ? trim($options['base_url'],'/').'/' : self::BASE_URL;
         if(preg_match('/^https?:\/\//i',$this->base_url) == 0){
@@ -220,12 +218,6 @@ class twip{
             }
         }
 
-        if(preg_match('/^[^?]+\.json/', $this->request_uri)){
-            $type = 'json';
-        } else {
-            $type = 'xml';
-        }
-
         // Add include_entities arg if not exists and API is configured to expand t.co
         if($this->o_mode_parse_entities && !isset($_REQUEST['include_entities'])){
             if(preg_match('/^[^?]+\?/', $this->request_uri)){
@@ -238,13 +230,10 @@ class twip{
 
         switch($this->method){
             case 'POST':
-                echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters), $type);
-                break;
-            case 'DELETE':
-                echo $this->parse_entities($this->connection->delete($this->request_uri,$this->parameters), $type);
+                echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters));
                 break;
             default:
-                echo $this->parse_entities($this->connection_get->get($this->request_uri), $type);
+                echo $this->parse_entities($this->connection_get->get($this->request_uri));
                 break;
         }
     }
@@ -314,39 +303,23 @@ class twip{
         $this->request_headers['Host'] = 'api.twitter.com';
 
         if($version === "1") {
-            if((strpos($this->request_uri,'search.') === 0)){
-                $this->request_headers['Host'] = 'search.twitter.com';
-            }
-
-            if(strpos($this->request_uri,'statuses/update_with_media') > 0){
-                $this->request_uri = str_replace("api.twitter.com", "upload.twitter.com", $this->request_uri);
-            }
+            header("HTTP/1.0 410 Gone");
+            die();
         }
 
         $replacement = array(
             'pc=true' => 'pc=false', //change pc=true to pc=false
             '&earned=true' => '', //remove "&earned=true"
-            '/1.1/mentions.json' => '/1.1/mentions_timeline.json', //backward compat for API 1.0
-            'i/search.json' => 'search.json', //fix search issue on twitter for iPhone
         );
 
         $api = str_replace(array_keys($replacement), array_values($replacement), $api);
 
-
-        if((strpos($api,'search.') === 0)){
-            $this->request_uri = sprintf("%s%s", $this->parent_search_api, $api);
+        if( strpos($api,'oauth/') === 0 ) {
+            // These API requests don't needs version string
+            $this->request_uri = sprintf("%s%s", $this->parent_api, $api);
+        }else{
+            $this->request_uri = sprintf("%s%s/%s", $this->parent_api, $version, $api);
         }
-        else{
-            if( strpos($api,'oauth/') === 0
-                || strpos($api, 'i/') === 0 ){
-                // These API requests don't needs version string
-                $this->request_uri = sprintf("%s%s", $this->parent_api, $api);
-            }else{
-                $this->request_uri = sprintf("%s%s/%s", $this->parent_api, $version, $api);
-            }
-        }
-
-
     }
 
     public function extract_uri_version($uri){
