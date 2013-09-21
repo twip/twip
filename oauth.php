@@ -2,7 +2,7 @@
 session_start();
 require('include/twitteroauth.php');
 require('config.php');
-
+require('oauth_proxy.php');
 
 function http_error($http_code) {
     echo 'Could not connect to Twitter. Refresh the page or try again later.';
@@ -17,7 +17,7 @@ if(isset($_POST['url_suffix'])){
     $_SESSION['url_suffix'] = preg_replace('/[^a-zA-Z0-9]/','',$_POST['url_suffix']);
 }
 if(!empty($_POST)){
-    if(!isset($_GET['type']) || $_GET['type']==1 || $_GET['type']==2){
+    if(!isset($_GET['type']) || $_GET['type']==1){
         $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
         $request_token = $connection->getRequestToken(BASE_URL.'oauth.php');
 
@@ -31,21 +31,28 @@ if(!empty($_POST)){
 
         /* Build authorize URL */
         $url = $connection->getAuthorizeURL($_SESSION['oauth_token'],FALSE);
-        if ($_GET['type']==1 || !isset($_GET['type'])) {
-            header('HTTP/1.1 302 Found');
-            header('Status: 302 Found');
-            header('Location: ' . $url); 
-        } else {
-            // encode user and password for decode.
-            $_SESSION['oauth_proxy'] = array(
-                'username' => $_POST['username'],
-                'password' => $_POST['password'],
-                'url' => $url
-            );
-            header('HTTP/1.1 302 Found');
-            header('Status: 302 Found');
-            header('Location: oauth_proxy.php');
+        header('HTTP/1.1 302 Found');
+        header('Status: 302 Found');
+        header('Location: ' . $url); 
+    }
+    elseif ($_GET['type'] == 2) {
+        $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
+        $request_token = $connection->getRequestToken('oob');
+
+        /* Save request token to session */
+        $_SESSION['oauth_token'] = $request_token['oauth_token'];
+        $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+
+        if ($connection->http_code != 200) {
+            http_error($connection->http_code);
         }
+
+        $url = $connection->getAuthorizeURL($request_token['oauth_token'], FALSE);
+        $oauth_verifier = oauth_proxy($url, $_POST['username'], $_POST['password']);
+
+        header('HTTP/1.1 302 Found');
+        header('Status: 302 Found');
+        header('Location: ' . BASE_URL . 'oauth.php?oauth_token=' . $request_token['oauth_token'] . '&oauth_verifier=' . $oauth_verifier);
     }
     exit();
 }
