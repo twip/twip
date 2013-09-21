@@ -2,6 +2,17 @@
 session_start();
 require('include/twitteroauth.php');
 require('config.php');
+
+
+function http_error($http_code) {
+    echo 'Could not connect to Twitter. Refresh the page or try again later.';
+    echo "\n Error code:" . $http_code . ".";
+    if($http_code == 0) {
+        echo "Don't report bugs or issues if you got this error code. Twitter is not accessible on this host. Perhaps the hosting company blocked Twitter.";
+    }
+    die();
+}
+
 if(isset($_POST['url_suffix'])){
     $_SESSION['url_suffix'] = preg_replace('/[^a-zA-Z0-9]/','',$_POST['url_suffix']);
 }
@@ -14,33 +25,26 @@ if(!empty($_POST)){
         $_SESSION['oauth_token'] = $request_token['oauth_token'];
         $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
 
-        switch ($connection->http_code) {
-          case 200:
-            /* Build authorize URL */
-            $url = $connection->getAuthorizeURL($_SESSION['oauth_token'],FALSE);
-            if ($_GET['type']==1 || !isset($_GET['type'])) {
-                header('HTTP/1.1 302 Found');
-                header('Status: 302 Found');
-                header('Location: ' . $url); 
-            } else {
-                // encode user and password for decode.
-                $_SESSION['oauth_proxy'] = array(
-                    'username' => $_POST['username'],
-                    'password' => $_POST['password'],
-                    'url' => $url
-                );
-                header('HTTP/1.1 302 Found');
-                header('Status: 302 Found');
-                header('Location: oauth_proxy.php');
-            }
-            break;
-          default:
-            echo 'Could not connect to Twitter. Refresh the page or try again later.';
-            echo "\n Error code:".$connection->http_code.".";
-            if($connection->http_code==0){
-                echo "Don't report bugs or issues if you got this error code. Twitter is not accessible on this host. Perhaps the hosting company blocked Twitter.";
-            }
-            break;
+        if ($connection->http_code != 200) {
+            http_error($connection->http_code);
+        }
+
+        /* Build authorize URL */
+        $url = $connection->getAuthorizeURL($_SESSION['oauth_token'],FALSE);
+        if ($_GET['type']==1 || !isset($_GET['type'])) {
+            header('HTTP/1.1 302 Found');
+            header('Status: 302 Found');
+            header('Location: ' . $url); 
+        } else {
+            // encode user and password for decode.
+            $_SESSION['oauth_proxy'] = array(
+                'username' => $_POST['username'],
+                'password' => $_POST['password'],
+                'url' => $url
+            );
+            header('HTTP/1.1 302 Found');
+            header('Status: 302 Found');
+            header('Location: oauth_proxy.php');
         }
     }
     exit();
