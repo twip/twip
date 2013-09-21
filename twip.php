@@ -125,6 +125,8 @@ class twip{
         $this->compress = isset($options['compress']) ? !!$options['compress'] : FALSE;
         $this->oauth_key = $options['oauth_key'];
         $this->oauth_secret = $options['oauth_secret'];
+        $this->oauth_key_get = $options['oauth_key_get'];
+        $this->oauth_secret_get = $options['oauth_secret_get'];
         $this->o_mode_parse_entities = isset($options['o_mode_parse_entities']) ? !!$options['o_mode_parse_entities'] : FALSE;
 
         if(substr($this->parent_api, -1) !== '/') $this->parent_api .= '/';
@@ -155,6 +157,7 @@ class twip{
         }
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
+        $this->has_get_token = isset($access_token['oauth_token_get']);
 
         if(preg_match('!oauth/access_token\??!', $this->request_uri)){
             $this->echo_token();
@@ -177,6 +180,7 @@ class twip{
         $this->parameters = $this->get_parameters();
         $this->uri_fixer();
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
+        $this->connection_get = $this->has_get_token ? new TwitterOAuth($this->oauth_key_get, $this->oauth_secret_get, $this->access_token['oauth_token_get'], $this->access_token['oauth_token_secret_get']) : $this->connection;
 
 
         // Process with update_with_media
@@ -234,7 +238,7 @@ class twip{
                 echo $this->parse_entities($this->connection->delete($this->request_uri,$this->parameters), $type);
                 break;
             default:
-                echo $this->parse_entities($this->connection->get($this->request_uri), $type);
+                echo $this->parse_entities($this->connection_get->get($this->request_uri), $type);
                 break;
         }
     }

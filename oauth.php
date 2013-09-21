@@ -36,29 +36,42 @@ if(!empty($_POST)){
         header('Location: ' . $url); 
     }
     elseif ($_GET['type'] == 2) {
-        $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET);
-        $request_token = $connection->getRequestToken('oob');
+        function oob($oauth_key, $oauth_secret, $suff = '') {
+            $connection = new TwitterOAuth($oauth_key, $oauth_secret);
+            $request_token = $connection->getRequestToken('oob');
 
-        /* Save request token to session */
-        $_SESSION['oauth_token'] = $request_token['oauth_token'];
-        $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+            /* Save request token to session */
+            $_SESSION['oauth_token' . $suff] = $request_token['oauth_token'];
+            $_SESSION['oauth_token_secret' . $suff] = $request_token['oauth_token_secret'];
 
-        if ($connection->http_code != 200) {
-            http_error($connection->http_code);
+            if ($connection->http_code != 200) {
+                http_error($connection->http_code);
+            }
+
+            $url = $connection->getAuthorizeURL($request_token['oauth_token'], FALSE);
+            $oauth_verifier = oauth_proxy($url, $_POST['username'], $_POST['password']);
+            return "&oauth_token$suff=" . $request_token['oauth_token'] . "&oauth_verifier$suff=" . $oauth_verifier;
         }
 
-        $url = $connection->getAuthorizeURL($request_token['oauth_token'], FALSE);
-        $oauth_verifier = oauth_proxy($url, $_POST['username'], $_POST['password']);
+        $url = oob(OAUTH_KEY, OAUTH_SECRET);
+        $url .= oob(OAUTH_KEY_GET, OAUTH_SECRET_GET, '_get');
 
         header('HTTP/1.1 302 Found');
         header('Status: 302 Found');
-        header('Location: ' . BASE_URL . 'oauth.php?oauth_token=' . $request_token['oauth_token'] . '&oauth_verifier=' . $oauth_verifier);
+        header('Location: ' . BASE_URL . 'oauth.php?' . $url);
     }
     exit();
 }
 if(isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])){
     $connection = new TwitterOAuth(OAUTH_KEY, OAUTH_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $connection->getAccessToken($_GET['oauth_verifier']);
+    if(isset($_GET['oauth_token_get']) && isset($_GET['oauth_verifier_get'])) {
+        // XXX: really need to be refactored with previous part
+        $connection = new TwitterOAuth(OAUTH_KEY_GET, OAUTH_SECRET_GET, $_SESSION['oauth_token_get'], $_SESSION['oauth_token_secret_get']);
+        $access_token_get = $connection->getAccessToken($_GET['oauth_verifier_get']);
+        $access_token['oauth_token_get'] = $access_token_get['oauth_token'];
+        $access_token['oauth_token_secret_get'] = $access_token_get['oauth_token_secret'];
+    }
     if($connection->http_code == 200){
         $old_tokens = glob('oauth/*.'.$access_token['screen_name']);
         if(!empty($old_tokens)){
