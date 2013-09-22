@@ -14,30 +14,36 @@ class twip{
         if(!isset($status->entities)){
             return;
         }
+
+        $shift=0;
         mb_internal_encoding('UTF-8');
 
         if(isset($status->entities->urls)){
-            $a = array_reverse($status->entities->urls);
-            foreach($a as &$url){
+            foreach($status->entities->urls as &$url){
                 if($url->expanded_url){
+                    $url->indices[0] += $shift;
+                    $url->indices[1] += $shift;
                     $status->text = mb_substr($status->text, 0, $url->indices[0]) . $url->expanded_url . mb_substr($status->text, $url->indices[1]);
                     $url->indices[1] = $url->indices[0] + mb_strlen($url->expanded_url);
+                    $diff = mb_strlen($url->expanded_url) - mb_strlen($url->url);
+                    $shift += $diff;
                     $url->url = $url->expanded_url;
                 }
             }
-            $status->entities->urls = array_reverse($a);
         }
 
         if(!isset($status->entities->media)){
             return;
         }
-        $a = array_reverse($status->entities->media);
         foreach($status->entities->media as &$media){
+            $media->indices[0] += $shift;
+            $media->indices[1] += $shift;
             $status->text = mb_substr($status->text, 0, $media->indices[0]) . $media->media_url_https . mb_substr($status->text, $media->indices[1]);
             $media->indices[1] = $media->indices[0] + mb_strlen($media->media_url_https);
+            $diff = mb_strlen($media->media_url_https) - mb_strlen($media->url);
+            $shift += $diff;
             $media->url = $media->media_url_https;
         }
-        $status->entities->media = array_reverse($a);
     }
 
     public function json_x86_decode($in){
