@@ -230,6 +230,9 @@ class TwitterOAuth {
    * Get the header info to store.
    */
   function getHeader($ch, $header) {
+    if (strpos($header, 'Content-Length:') === FALSE) {
+      header($header);
+    }
     $i = strpos($header, ':');
     if (!empty($i)) {
       $key = str_replace('-', '_', strtolower(substr($header, 0, $i)));
