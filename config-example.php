@@ -1,6 +1,8 @@
 <?php
 define('OAUTH_KEY','');
 define('OAUTH_SECRET','');
+define('OAUTH_KEY_GET',OAUTH_KEY);
+define('OAUTH_SECRET_GET',OAUTH_SECRET);
 define('BASE_URL','');
 define('API_VERSION','1.1');
 define('DEBUG',FALSE);
