@@ -80,7 +80,7 @@ class twip{
         return $status;
     }
 
-    public function twip($options = null){
+    function __construct($options = null){
         $this->parse_variables($options);
 
         ob_start();
