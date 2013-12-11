@@ -124,11 +124,6 @@ class twip{
         }
     }
 
-    private function echo_token(){
-            $str = 'oauth_token='.$this->access_token['oauth_token']."&oauth_token_secret=".$this->access_token['oauth_token_secret']."&user_id=".$this->access_token['user_id']."&screen_name=".$this->access_token['screen_name'].'&x_auth_expires=0'."\n";
-            echo $str;
-    }
-
     private function parse_variables($options){
         //parse options
         $this->parent_api = isset($options['parent_api']) ? $options['parent_api'] : self::PARENT_API;
@@ -170,11 +165,6 @@ class twip{
         $access_token = unserialize($access_token);
         $this->access_token = $access_token;
         $this->has_get_token = isset($access_token['oauth_token_get']);
-
-        if(preg_match('!oauth/access_token\??!', $this->request_uri)){
-            $this->echo_token();
-            return;
-        }
 
         if($imageproxy){
             if($this->method=='POST'){
