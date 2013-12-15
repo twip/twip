@@ -352,21 +352,27 @@ class twip{
         $prefix = substr($full_request_uri, 0, 3);
         switch($prefix) {
             case '/o/':
+                // full_request_uri:   /o/PASSWORD/1.1/xxx/xxx.json
                 $this->mode = 'o';
-                break;
-            case '/t/':
-                $this->mode = 't';
+                list($this->password, $forwarded_request_uri) = explode('/', substr($full_request_uri, 3), 2);
+                $this->forwarded_request_uri = $this->request_uri = $forwarded_request_uri;
                 break;
             case '/i/':
                 $this->mode = 'i';
+                // full_request_uri:   /i/?????
+                // does this mode need this parsing anyway? @yegle
+                list($this->password, $forwarded_request_uri) = explode('/', substr($full_request_uri, 3), 2);
+                $this->forwarded_request_uri = $this->request_uri = $forwarded_request_uri;
+                break;
+            case '/t/':
+                // full_request_uri:   /t/1.1/xxx/xxx.json
+                $this->mode = 't';
+                $this->request_uri = substr($full_request_uri, 3);
                 break;
             default:
                 $this->mode = 'UNKNOWN';
                 break;
         }
-        list($this->password, $forwarded_request_uri) = explode('/',
-            substr($full_request_uri, 3), 2);
-        $this->forwarded_request_uri = $this->request_uri = $forwarded_request_uri;
     }
 
     private function headerfunction($ch,$str){
