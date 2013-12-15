@@ -393,15 +393,26 @@ class twip{
 
     public static function encode_uri($raw_uri) {
         $parts = parse_url($raw_uri);
+        $path = $parts['path'];
         $replacements = array(
             '/' => '__',
             '.' => '_',
         );
-        return str_replace(
+        $regex_replacements = array(
+            '/\d{2,}/' => 'NUMBER',
+        );
+
+        $path = str_replace(
             array_keys($replacements),
             array_values($replacements),
-            $parts['path']
+            $path
         );
+        $path = preg_replace(
+            array_keys($regex_replacements),
+            array_values($regex_replacements),
+            $path
+        );
+        return $path;
     }
 }
 ?>
