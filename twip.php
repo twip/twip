@@ -188,8 +188,9 @@ class twip{
         if (!array_key_exists($filterName, $this->filters)) {
             $filterName = '_default';
         }
+        $parts = parse_url($this->forwarded_request_uri);
         echo $this->filters[$filterName](array(
-            'path' => $this->forwarded_request_uri,
+            'path' => $parts['path'],
             'method' => $this->method,
             'params' => $this->parameters,
             'self' => $this,
