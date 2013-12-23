@@ -352,11 +352,12 @@ class twip{
     }
 
     private function get_parameters($returnArray = TRUE){
-        $data = file_get_contents('php://input');
-        if(!$returnArray) return $data;
-        $ret = array();
-        parse_str($data,$ret);
-        return $ret;
+        if($returnArray) {
+            return $_REQUEST;
+        }
+        else {
+            return http_build_query($_REQUEST);
+        }
     }
 
     public static function encode_uri($raw_uri) {
