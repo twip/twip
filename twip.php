@@ -196,38 +196,6 @@ class twip{
         ));
         return;
 
-
-        // Process with update_with_media
-        if($this->method === 'POST' && strpos($this->request_uri,'statuses/update_with_media') !== FALSE) {
-            $this->request_headers = OAuthUtil::get_headers();
-
-            // Check actually media uplaod
-            if(strpos(@$this->request_headers['Content-Type'], 'multipart/form-data') !== FALSE
-                && count($_FILES) > 0 && isset($_FILES['media'])) {
-
-                $header_authorization = $this->connection->getOAuthRequest($this->request_uri, $this->method, null)->to_header();
-                $this->forwarded_headers = array("Host: api.twitter.com", $header_authorization, "Expect:");
-                $this->parameters = preg_replace('/^@/', "\0@", $_POST);
-
-                $media = $_FILES['media'];
-                $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
-                $this->parameters["media[]"] = '@' . $fn;
-
-                $ch = curl_init($this->request_uri);
-                curl_setopt($ch,CURLOPT_HTTPHEADER,$this->forwarded_headers);
-                curl_setopt($ch,CURLOPT_HEADERFUNCTION,array($this,'headerfunction'));
-                curl_setopt($ch,CURLOPT_POSTFIELDS,$this->parameters);
-                curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
-                $ret = curl_exec($ch);
-
-                echo $ret;
-                return;
-            } else {
-                header('HTTP/1.0 400 Bad Request');
-                return;
-            }
-        }
-
         // Add include_entities arg if not exists and API is configured to expand t.co
         if($this->o_mode_parse_entities && !isset($_REQUEST['include_entities'])){
             if(preg_match('/^[^?]+\?/', $this->request_uri)){
