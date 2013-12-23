@@ -180,7 +180,10 @@ class twip{
             return;
         }
         $this->parameters = $this->get_parameters();
-        $this->uri_fixer();
+        foreach(array('pc', 'earned') as $param) {
+            unset($this->parameters[$param]);
+        }
+        $this->parameters['include_entities'] = 'true';
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
         $this->connection_get = $this->has_get_token ? new TwitterOAuth($this->oauth_key_get, $this->oauth_secret_get, $this->access_token['oauth_token_get'], $this->access_token['oauth_token_secret_get']) : $this->connection;
 
@@ -189,32 +192,14 @@ class twip{
             $filterName = '_default';
         }
         $parts = parse_url($this->forwarded_request_uri);
-        echo $this->filters[$filterName](array(
+        $raw_response = $this->filters[$filterName](array(
             'path' => $parts['path'],
             'method' => $this->method,
             'params' => $this->parameters,
             'self' => $this,
         ));
+        echo $this->parse_entities($raw_response);
         return;
-
-        // Add include_entities arg if not exists and API is configured to expand t.co
-        if($this->o_mode_parse_entities && !isset($_REQUEST['include_entities'])){
-            if(preg_match('/^[^?]+\?/', $this->request_uri)){
-                $this->request_uri .= '&include_entities=true';
-            }
-            else{
-                $this->request_uri .= '?include_entities=true';
-            }
-        }
-
-        switch($this->method){
-            case 'POST':
-                echo $this->parse_entities($this->connection->post($this->request_uri,$this->parameters));
-                break;
-            default:
-                echo $this->parse_entities($this->connection_get->get($this->request_uri));
-                break;
-        }
     }
 
     private function transparent_mode(){
