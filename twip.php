@@ -183,7 +183,6 @@ class twip{
         foreach(array('pc', 'earned') as $param) {
             unset($this->parameters[$param]);
         }
-        $this->parameters['include_entities'] = 'true';
         $this->connection = new TwitterOAuth($this->oauth_key, $this->oauth_secret, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
         $this->connection_get = $this->has_get_token ? new TwitterOAuth($this->oauth_key_get, $this->oauth_secret_get, $this->access_token['oauth_token_get'], $this->access_token['oauth_token_secret_get']) : $this->connection;
 
