@@ -1,6 +1,7 @@
 <?php
-require('twip.php');
-require('config.php');
+define('__ROOT__', dirname(__FILE__));
+require(__ROOT__.'/twip.php');
+require(__ROOT__.'/config.php');
 $options['oauth_key'] = @constant('OAUTH_KEY');
 $options['oauth_secret'] = @constant('OAUTH_SECRET');
 $options['oauth_key_get'] = @constant('OAUTH_KEY_GET');

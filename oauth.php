@@ -1,8 +1,9 @@
 <?php
 session_start();
-require('include/twitteroauth.php');
-require('config.php');
-require('oauth_proxy.php');
+define('__ROOT__', dirname(__FILE__));
+require(__ROOT__.'/include/twitteroauth.php');
+require(__ROOT__.'/config.php');
+require(__ROOT__.'/oauth_proxy.php');
 
 function http_error($http_code) {
     echo 'Could not connect to Twitter. Refresh the page or try again later.';

@@ -1,6 +1,6 @@
 <?php
-require('include/twitteroauth.php');
-require('image_proxy.php');
+require(__ROOT__.'/include/twitteroauth.php');
+require(__ROOT__.'/image_proxy.php');
 class twip{
     const PARENT_API = 'https://api.twitter.com/';
     const PARENT_SEARCH_API = 'http://search.twitter.com/';
