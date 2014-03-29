@@ -23,7 +23,7 @@ server {
 
     root     /srv/http/twitter;
     location /twip/oauth { deny all; }
-    location /twip/ { try_files $uri /twip/index.php; }
+    location /twip/ { try_files $uri /twip/index.php?$args; }
     location ~ \.php$ {
         try_files $uri =404;
         include fastcgi_params;
