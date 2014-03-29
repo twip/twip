@@ -298,9 +298,13 @@ class twip{
     private function parse_request_uri(){
         // old value
         //$full_request_uri = substr($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'],strlen(preg_replace('/^https?:\/\//i','',$this->base_url)));
-        $full_request_uri = substr(
-            $_SERVER['REQUEST_URI'],
-            strlen(dirname($_SERVER['SCRIPT_NAME'])));
+		if (strlen(dirname($_SERVER['SCRIPT_NAME'])) > 1) {
+			$full_request_uri = substr(
+				$_SERVER['REQUEST_URI'],
+				strlen(dirname($_SERVER['SCRIPT_NAME'])));
+		} else {
+			$full_request_uri = $_SERVER['REQUEST_URI'];
+		}
 
         $prefix = substr($full_request_uri, 0, 3);
         switch($prefix) {
