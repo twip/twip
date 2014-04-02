@@ -10,6 +10,15 @@ class twip{
     const BASE_URL = 'http://yegle.net/twip/';
     const API_VERSION = '1.1';
 
+    private function push_entities(&$status, &$entities, $type) {
+        if (isset($status->entities->$type)) {
+            foreach($status->entities->$type as &$entity) {
+                $entity->from = $type;
+                array_push($entities, $entity);
+            }
+            $status->entities->$type = array();
+        }
+    }
     public function replace_tco_json(&$status){
         if(!isset($status->entities)){
             return;
@@ -19,20 +28,11 @@ class twip{
         mb_internal_encoding('UTF-8');
 
         $entities = array();
-        function push_entities(&$status, &$entities, $type) {
-            if (isset($status->entities->$type)) {
-                foreach($status->entities->$type as &$entity) {
-                    $entity->from = $type;
-                    array_push($entities, $entity);
-                }
-                $status->entities->$type = array();
-            }
-        }
-        push_entities($status, $entities, 'urls');
-        push_entities($status, $entities, 'media');
-        push_entities($status, $entities, 'symbols');
-        push_entities($status, $entities, 'hashtags');
-        push_entities($status, $entities, 'user_mentions');
+        $this->push_entities($status, $entities, 'urls');
+        $this->push_entities($status, $entities, 'media');
+        $this->push_entities($status, $entities, 'symbols');
+        $this->push_entities($status, $entities, 'hashtags');
+        $this->push_entities($status, $entities, 'user_mentions');
 
         // note that usort is not stable
         usort($entities, function($a, $b) {
