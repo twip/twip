@@ -83,12 +83,12 @@ class twip{
     }
 
     public function json_x86_decode($in){
-        $in = preg_replace('/id":(\d+)/', 'id":"\1"', $in);
+        $in = preg_replace('/id":(\d+)/', 'id":"s\1"', $in);
         return json_decode($in);
     }
     public function json_x86_encode($in){
         $in = json_encode($in);
-        return preg_replace('/id":"(\d+)"/', 'id":\1', $in);
+        return preg_replace('/id":"s(\d+)"/', 'id":\1', $in);
     }
 
     public function parse_entities($status){
