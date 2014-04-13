@@ -368,7 +368,7 @@ class twip{
         }
     }
 
-    private function headerfunction($ch,$str){
+    public function headerfunction($ch,$str){
         if(strpos($str,'Content-Length:')!==FALSE){
             header($str);
         }
