@@ -18,6 +18,9 @@ class twip{
             }
             $status->entities->$type = array();
         }
+        if ($type === 'media' && isset($status->extended_entities->$type)) {
+            $status->extended_entities->$type = array();
+        }
     }
     public function replace_tco_json(&$status){
         if(!isset($status->entities)){
@@ -79,6 +82,9 @@ class twip{
             $from = $entity->from;
             unset($entity->from);
             array_push($status->entities->$from, $entity);
+            if ($from === 'media' && isset($status->extended_entities->$from)) {
+                array_push($status->extended_entities->$from, $entity);
+            }
         }
     }
 
