@@ -3,19 +3,19 @@
 $filterName = basename(__FILE__, '.php');
 
 $this->filters[$filterName] = function($args) {
-    $url = sprintf("https://api.twitter.com/%s", $args['path']);
+    $url = sprintf("https://upload.twitter.com/%s", $args['path']);
+
     $headers = OAuthUtil::get_headers();
     // Check actually media uplaod
     if(strpos(@$headers['Content-Type'], 'multipart/form-data') === FALSE
-        or count($_FILES) == 0 or !isset($_FILES['media'])) {
-            header('HTTP/1.0 400 Bad Request');
-            return;
-        }
+            or count($_FILES) == 0 or !isset($_FILES['media'])) {
+        return $args['self']->connection->post($url, $args['params']);
+    }
 
     $auth_headers = $args['self']->connection->getOAuthRequest(
         $url, $args['method'], null)->to_header();
     $forwarded_headers = array(
-        "Host: api.twitter.com",
+        "Host: upload.twitter.com",
         $auth_headers,
         "Expect:");
 
