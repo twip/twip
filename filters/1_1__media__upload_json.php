@@ -7,8 +7,7 @@ $this->filters[$filterName] = function($args) {
 
     $headers = OAuthUtil::get_headers();
     // Check actually media uplaod
-    if(strpos(@$headers['Content-Type'], 'multipart/form-data') === FALSE
-            or count($_FILES) == 0 or !isset($_FILES['media'])) {
+    if(strpos(@$headers['Content-Type'], 'multipart/form-data') === FALSE) {
         return $args['self']->connection->post($url, $args['params']);
     }
 
@@ -19,15 +18,18 @@ $this->filters[$filterName] = function($args) {
         $auth_headers,
         "Expect:");
 
-    $media = $_FILES['media'];
-    $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
+    $parameters = $args['params'];
+    $media = @$_FILES['media'];
+    if ($media) {
+        $fn = is_array($media['tmp_name']) ? $media['tmp_name'][0] : $media['tmp_name'];
 
-    if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
-        $cfn = curl_file_create($fn, 'application/octet-stream', 'media');
-        $parameters["media"] = $cfn;
-    } else {
-        $parameters = preg_replace('/^@/', "\0@", $_POST);
-        $parameters["media"] = '@' . $fn;
+        if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
+            $cfn = curl_file_create($fn, 'application/octet-stream', 'media');
+            $parameters["media"] = $cfn;
+        } else {
+            $parameters = preg_replace('/^@/', "\0@", $_POST);
+            $parameters["media"] = '@' . $fn;
+        }
     }
 
     $ch = curl_init($url);

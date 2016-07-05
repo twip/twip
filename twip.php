@@ -98,7 +98,7 @@ class twip{
     }
 
     public function parse_entities($status){
-        if($this->o_mode_parse_entities){
+        if($status && $this->o_mode_parse_entities){
             $j = is_string($status) ? $this->json_x86_decode($status) : $status;
             if(is_array($j)){
                 foreach($j as &$s){
@@ -151,6 +151,7 @@ class twip{
         }
 
         $str = ob_get_contents();
+        if (!$str) ob_end_clean();
         if ($compressed) ob_end_flush();
         header('Content-Length: '.ob_get_length());
         ob_flush();
